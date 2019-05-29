@@ -1,0 +1,102 @@
+body {
+	font-family: Helvetica, sans;
+}
+
+h1 {
+	float: left;
+	width: auto;
+}
+
+nav {
+	clear: right;
+	float: right;
+	margin: 2em;
+	margin-bottom: 40pt;
+}
+
+fieldset.small {
+	padding: 0 8pt;
+}
+fieldset.small * {
+	font-size: 10pt;
+}
+
+.errors {
+	color: red;
+	font-weight: bold;
+}
+.knob {
+	outline: 0;
+	border: 1px solid black;
+	background: silver;
+	text-align: center;
+	border-radius: 50%;
+	font-size: 1em;
+	width: 2em;
+	height: 2em;
+	background: gold;
+	border: 2px solid gray;
+	background-image: -moz-radial-gradient(12pt 12pt 45deg, circle cover, white 0%, gray 100%, black 95%);
+	background-image: -webkit-radial-gradient(12pt 12pt, circle cover, white, gray);
+	background-image: radial-gradient(12pt 12pt 45deg, circle cover, white 0%, gray 100%, black 95%);
+}
+
+.left {
+	width: 49%;
+	float: left;
+}
+.right {
+	width: 49%;
+	float: right;
+}
+canvas {
+	border: 1px solid gray;
+	width: 100%;
+}
+fieldset {
+	border: 1px solid gray;
+	margin-bottom: 1em;
+}
+legend {
+	padding-left: .2em;
+	padding-right: .2em;
+}
+label {
+	text-align: right;
+	display: inline-block;
+	margin-right: .5em;
+}
+label.long {
+	width: 100%;
+	text-align: left;
+	margin-bottom: 2pt;
+}
+input[type="text"] {
+	width: 2em;
+	margin-right: 1em;
+	border: none;
+	border-bottom: 1px dotted gray;
+}
+textarea {
+    width: 99%;
+    min-height: 7em;
+    overflow: auto;
+}
+#presets {
+	margin: 0;
+	padding: 0;
+}
+#presets li {
+	display: block;
+	margin-right: 1em;
+	margin-left: 0;
+}
+#presets li:hover {
+	text-decoration: underline;
+	cursor:pointer;cursor:hand;
+}
+.submit {
+	border-top: 2px solid gray;
+	padding-top: 1em;
+}
+

@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>L-system Sound</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="stylesheet" type="text/css" href="static/main.css">
+</head>
+
+<body>
+    <header>
+        <h1>L-systems in HTML5</h1>
+
+        <nav>
+            Simple L-System |
+            <a href='parametric.html'>Parametric L-System</a>
+        </nav>
+    </header>
+
+    <main>
+        <section>
+            <form id='controls'>
+                <input type=hidden name=initially id=initially>
+                <!-- not yet called in js -->
+
+                <div class='left'>
+                    <fieldset>
+                        <legend id='title'>Loading</legend>
+                        <p>
+                            <label class='long' for='variables'>Constants
+                                <small>
+                                    <code>#define name value</code> &mdash; one per line</small>
+                            </label>
+                            <textarea id='variables'></textarea>
+                        </p>
+                        <p>
+                            <label class='long' for='rules'>Rules
+                                <small>
+                                    <code>F(x,y): x==1 && y==2 => NewPattern</code>
+                                    &mdash; one rule per line
+                                </small>
+                            </label>
+                            <textarea id='rules'></textarea>
+                        </p>
+                        <p>
+                            <label for='start' class='long'>Axiom (seed)</label>
+                            <textarea id='start'></textarea>
+                        </p>
+                        <p>
+
+                            <label for='angle'>Angle</label>
+                            <input type='range' id='angle' min=0 max=360 aria-valuemin='0' aria-valuemax='360'>
+
+                            <label for='total_generations'>Generations</label>
+                            <input type='range' min=1 max=10 aria-valuemin=1 aria-valuemax=10 id='total_generations'>
+                        </p>
+                    </fieldset>
+
+                    <fieldset>
+                        <legend>MIDI</legend>
+                        <p>
+                            <label for='duration'>Note&nbsp;duration</label>
+                            <input type='range' min=1 max=60 id='duration' value=48 aria-valuemin='1' aria-valuemax='60'>
+                        </p>
+                        <p>
+                            <label for='scale'>Scale</label>
+                            <select id='scale'>
+                                <option>pentatonic</option>
+                                <option>phrygian</option>
+                                <option>fifths</option>
+                            </select>
+                        </p>
+                        <p>
+                            <label for='angle'>Wrap at angle</label>
+                            <input type='range' id='wrap_angle_at' min=0 max=360 aria-valuemin='0' aria-valuemax='360'>
+                        </p>
+                    </fieldset>
+
+                    <p class='submit'>
+                        <input type='button' id='generate' value='Generate' />
+                        <input type='button' id='createMidi' value='Generate MIDI' disabled='true' />
+                        <small>(Music on local only)</small>
+                    </p>
+                </div>
+
+                <div class='right'>
+                    <fieldset>
+                        <legend>Presets</legend>
+                        <ul id='presets'></ul>
+                    </fieldset>
+
+                    <label for='contentDisplay'>Commands</label>
+                    <textarea id='contentDisplay'></textarea>
+
+                    <p>
+                        <label for='canvas_width'>Canvas width</label>
+                        <input type='range' id='canvas_width' data-scale='0.5' min=100 max=2000  aria-valuemin='100' aria-valuemax='2000'>
+                        <label for='canvas_height'>Canvas height</label>
+                        <input type='range' id='canvas_height' data-scale='0.5' min=100 max=2000 aria-valuemin='100' aria-valuemax='2000'>
+                    </p>
+
+                    <p>
+                        <label for='turtle_step_x'>Turtle Step X</label>
+                        <input type='range'  id='turtle_step_x' data-monitor='turtle_step_x' min=1 max=50 aria-valuemin='1' aria-valuemax='50'>
+
+                        <label for='turtle_step_y'>Turtle Step Y</label>
+                        <input type='range' id='turtle_step_y' min=1 max=50 aria-valuemin='1' aria-valuemax='50'>
+                        </span>
+                    </p>
+
+                    <p>
+                        <label for='init_x'>Init X</label>
+                        <input type='text' id='init_x' value='' />
+                        <label for='init_y'>Init Y</label>
+                        <input type='text' id='init_y' value='' />
+                    </p>
+                    <p>
+                        <label for='line_width'>Line width</label>
+                        <input type='range' id='line_width' min=1 max=20 aria-valuemax='20' aria-valuemin='1'>
+
+                        <label for 'generations_scale_lines'>Scale lines with age?</label>
+                        <input type='checkbox' checked='true' name='generations_scale_lines' id='generations_scale_lines' />
+                    </p>
+                </div>
+            </form>
+        </section>
+
+        <section id='canvases'></section>
+    </main>
+</body>
+
+</html>
