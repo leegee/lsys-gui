@@ -54,7 +54,7 @@ Lsys.prototype.initialize = function ( options ) {
 	this.scene.add( pointLight );
 
 	var planeGeo = new THREE.PlaneGeometry(
-		this.options.canvas_width, this.options.canvas_height // , 10, 10
+		this.options.canvasWidth, this.options.canvasHeight // , 10, 10
 	);
 	var planeMat = new THREE.MeshLambertMaterial( {
 		color: 0xFFFFFF
@@ -103,8 +103,8 @@ exports.prototype.interploateVars = function ( str ) {
 
 exports.prototype.turtle_graph = function ( dir ) {
 	// LOGGER.debug( 'Move '+dir +' from '+this.x+','+this.y );
-	var add2x = ( this.dcos( dir ) * ( this.options.turtle_step_x ) );
-	var add2y = ( this.dsin( dir ) * ( this.options.turtle_step_y ) );
+	var add2x = ( this.dcos( dir ) * ( this.options.turtleStepX ) );
+	var add2y = ( this.dsin( dir ) * ( this.options.turtleStepY ) );
 
 	this.material = new THREE.MeshLambertMaterial( {
 		color: this.colour

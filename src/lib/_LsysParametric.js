@@ -10,14 +10,14 @@ export class Lsys {
 			duration: 48,
 			scale: 'pentatonic',
 			initial_note_decimal: 58,
-			canvas_width: 2000,
-			canvas_height: 800,
+			canvasWidth: 2000,
+			canvasHeight: 800,
 			angle: 30,
-			turtle_step_x: 10,
-			turtle_step_y: 10,
-			init_x: null,
-			init_y: null,
-			line_width: 1,
+			turtleStepX: 10,
+			turtleStepY: 10,
+			initX: null,
+			initY: null,
+			lineWidth: 1,
 			time_scale_lines: 1,
 			clearCanvas: true,
 			colours: [
@@ -42,8 +42,8 @@ export class Lsys {
 
 		this.initialize();
 
-		this.x = this.max_x = this.min_x = this.options.init_x || 0;
-		this.y = this.max_y = this.min_y = this.options.init_y || 0;
+		this.x = this.max_x = this.min_x = this.options.initX || 0;
+		this.y = this.max_y = this.min_y = this.options.initY || 0;
 		this.content = '';
 
 		this.castRules();
@@ -55,8 +55,8 @@ export class Lsys {
 
 	initialize() {
 		this.colour = this.options.colours[0];
-		this.options.canvas.width = this.options.canvas_width;
-		this.options.canvas.height = this.options.canvas_height;
+		this.options.canvas.width = this.options.canvasWidth;
+		this.options.canvas.height = this.options.canvasHeight;
 		this.ctx = this.options.canvas.getContext("2d");
 
 		// Translate context to center of canvas:
@@ -368,14 +368,14 @@ export class Lsys {
 		// console.debug('Move '+dir +' from '+this.x+','+this.y);
 		this.ctx.beginPath();
 		if (this.options.time_scale_lines > 0) {
-			this.ctx.lineWidth = this.options.line_width;
-		} else if (this.options.line_width) {
-			this.ctx.lineWidth = this.options.line_width;
+			this.ctx.lineWidth = this.options.lineWidth;
+		} else if (this.options.lineWidth) {
+			this.ctx.lineWidth = this.options.lineWidth;
 		}
 		this.ctx.moveTo(this.x, this.y);
 
-		this.x += (this.dcos(dir) * this.options.turtle_step_x);
-		this.y += (this.dsin(dir) * this.options.turtle_step_y);
+		this.x += (this.dcos(dir) * this.options.turtleStepX);
+		this.y += (this.dsin(dir) * this.options.turtleStepY);
 
 		this.x += this.xoffset;
 		this.y += this.yoffset;
@@ -421,8 +421,8 @@ export class Lsys {
 
 		this.ctx.scale(sx, sy);
 
-		this.x = this.options.init_x || 0; // this.options.turtle_step_x || 0;
-		this.y = this.options.init_y || this.options.canvas_height / 2;
+		this.x = this.options.initX || 0; // this.options.turtleStepX || 0;
+		this.y = this.options.initY || this.options.canvasHeight / 2;
 		this.y -= this.min_y;
 
 		this.render();

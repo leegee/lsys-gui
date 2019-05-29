@@ -1,6 +1,6 @@
+const GUI = require('./gui.mjs');
 const appConfig = require('../../app.config');
-const ChromiumClient = require('../chromium/chromium-client.mjs');
-const { remote } = require('electron');
+
 const handleError = require('./electron-error.mjs');
 
 window.addEventListener('error', event => {
@@ -14,32 +14,19 @@ window.addEventListener('unhandledrejection', event => {
 });
 
 const elements = [
-    'user', 'pass', 'host', 'port', 'remotepath',
-    'countyFillOpacity', 'countyFillColour', 'countyBorderColour', 'countyBorderOpacity', 'mapTileUrl',
-    'statesBorderColour', 'statesBorderOpacity', 'showStates', 'states',
-    'initialZoom', 'minZoom', 'maxZoom', 'initialLat', 'initialLng',
-    'skus', 'help', 'deployView', 'settingsView',
-    'deployAction', 'deployAction', 'settingsAction',
-    'progress', 'status', 'bar', 'initView'
+    'viewMain', 'viewSettings'
 ].reduce((o, key) => {
-    o[key] = document.getElementById(key);
+    o[key] = window.document.getElementById(key);
     return o;
 }, {});
 
-const client = new ChromiumClient({
-    menu: {
-        Menu: remote.Menu,
-        MenuItem: remote.MenuItem,
-    },
+console.log(elements);
+
+const gui = new GUI({
     window,
     appConfig,
-    elements: {
-        skuTemplate: document.getElementById('sku-entry-template'),
-        skuList: document.getElementById("sku-list"),
-        progressTitle: document.getElementById("progress-title"),
-        ...elements
-    },
+    elements
 });
 
-client.init();
+gui.init();
 

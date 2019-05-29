@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>L-system Sound: Settings</title>
+
+    <link rel="shortcut icon" href="../icon.ico">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="main.css">
+</head>
+
+<body>
+    <main>
+        <section>
+            <form>
+                <p>
+                    <label for='canvasWidth'>Canvas width</label>
+                    <input type='range' id='canvasWidth' data-scale='0.5' min=100 max=2000 aria-valuemin='100'
+                        aria-valuemax='2000'>
+                </p>
+                <p>
+                    <label for='canvasHeight'>Canvas height</label>
+                    <input type='range' id='canvasHeight' data-scale='0.5' min=100 max=2000 aria-valuemin='100'
+                        aria-valuemax='2000'>
+                </p>
+
+                <p>
+                    <label for='turtleStepX'>Turtle Step X</label>
+                    <input type='range' id='turtleStepX' data-monitor='turtleStepX' min=1 max=50 aria-valuemin='1'
+                        aria-valuemax='50'>
+                </p>
+                <p>
+                    <label for='turtleStepY'>Turtle Step Y</label>
+                    <input type='range' id='turtleStepY' min=1 max=50 aria-valuemin='1' aria-valuemax='50'>
+                    </span>
+                </p>
+
+                <p>
+                    <label for='initX'>Init X</label>
+                    <input type='text' id='initX' value='' />
+                </p>
+                <p>
+                    <label for='initY'>Init Y</label>
+                    <input type='text' id='initY' value='' />
+                </p>
+                <p>
+                    <label for='lineWidth'>Line width</label>
+                    <input type='range' id='lineWidth' min=1 max=20 aria-valuemax='20' aria-valuemin='1'>
+                </p>
+                <p>
+                    <label for='generationsScaleLines'>Scale lines with age?</label>
+                    <input type='checkbox' checked='true' name='generationsScaleLines' id='generationsScaleLines' />
+                </p>
+                </div>
+            </form>
+        </section>
+    </main>
+
+</body>
+
+</html>
