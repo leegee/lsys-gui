@@ -29,7 +29,7 @@ const createWindow = () => {
     mainWindow.setMenu(null);
 
     mainWindow.loadURL(url.format({
-        pathname: path.join(__dirname, 'electron-app.html'),
+        pathname: path.join(__dirname, 'index.html'),
         protocol: 'file:',
         slashes: true
     }));
@@ -66,9 +66,7 @@ const reallyQuit = () => {
 electron.app.on('ready', createWindow);
 
 electron.app.on('window-all-closed', function () {
-    // if (process.platform !== 'darwin') {
     electron.app.quit();
-    // }
 });
 
 electron.app.on('activate', function () {

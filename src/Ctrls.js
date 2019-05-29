@@ -14,7 +14,7 @@ export class Ctrls {
         this.midi = document.getElementById('midi');
         this.createMidi = document.getElementById('createMidi');
         this.generate = document.getElementById('generate');
-        this.el_canvases = document.getElementById('canvases');
+        this.canvases = document.getElementById('canvases');
         this.contentDisplay = document.getElementById('contentDisplay');
         this.setupEventListerners();
         this.installPresets();
@@ -73,7 +73,7 @@ export class Ctrls {
             });
 
             let canvas = document.createElement('canvas');
-            options.canvas = this.el_canvases.insertBefore(canvas, this.el_canvases.firstChild);;
+            options.canvas = this.canvases.insertBefore(canvas, this.canvases.firstChild);;
 
             const lsys = new LsysParametric(options, canvas);
             lsys.generate(options.total_generations);

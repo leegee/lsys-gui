@@ -14,7 +14,7 @@ window.addEventListener('unhandledrejection', event => {
 });
 
 const elements = [
-    'viewMain', 'viewSettings'
+    'viewMain', 'viewSettings', 'actionGenerate', 'actionCreateMidi', 'canvases'
 ].reduce((o, key) => {
     o[key] = window.document.getElementById(key);
     return o;
