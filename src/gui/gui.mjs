@@ -114,43 +114,50 @@ module.exports = class GUI {
     }
 
     createMenu() {
-        const menu = new electron.remote.Menu({ type: 'menubar' });
+        // Presets.forEach((i, j) => {
+        //     const li = this.window.document.createElement('li');
+        //     li.innerText = i.title;
+        //     li.dataset.presetNumber = j;
+        //     li.addEventListener('click', (e) => {
+        //         this.loadPreset(e.target.dataset.presetNumber);
+        //     }, {
+        //             passive: true
+        //         });
+        //     ul.appendChild(li);
+        // });
 
-        const file = new electron.remote.Menu();
-        // file.append(new electron.remote.MenuItem({ click: () => this.loadSkusDialog(), label: '&Open' }));
-        // file.append(new electron.remote.MenuItem({ type: 'separator' }));
-        file.append(new electron.remote.MenuItem({
-            click: () => electron.remote.app.quit(),
-            label: process.platform === 'darwin' ? '&Quit' : 'E&xit'
-        }));
+        const template = [
+            {
+                label: '&File',
+                submenu: [
+                    isMac ? { role: 'close' } : { role: 'quit' }
+                ]
+            },
 
-        menu.append(new electron.remote.MenuItem({
-            label: '&File',
-            submenu: file
-        }));
+            {
+                label: '&Settings',
+                submenu: [
+                    { role: 'toggledevtools' },
+                    { label: 'Settings', click: () => this.view('settings') }
+                ]
+            },
 
-        const settings = new electron.remote.Menu();
-        settings.append(new electron.remote.MenuItem({ click: () => this.view('settings'), label: '&Edit Settings' }));
-        settings.append(new electron.remote.MenuItem({ type: 'separator' }));
-        settings.append(new electron.remote.MenuItem({ click: () => this.resetSettingsAction(), label: 'Reset to defaults' }));
-        menu.append(new electron.remote.MenuItem({
-            label: '&Settings',
-            submenu: settings
-        }));
+            {
+                label: '&Help',
+                submenu: [
+                    { role: 'toggledevtools' },
+                    {
+                        label: 'Show &Log',
+                        click: () => electron.shell.showItemInFolder(this.logFilePath)
+                    },
+                    {
+                        label: '&Support',
+                        click: () => electron.shell.openExternalSync('https://lee.goddards.space')
+                ]
+            },
+        ];
 
-        const help = new electron.remote.Menu();
-        help.append(new electron.remote.MenuItem({ click: () => this.view('help'), label: '&Help' }));
-
-        help.append(new electron.remote.MenuItem({ click: () => electron.shell.openExternalSync('https://lee.goddards.space'), label: '&Support' }));
-        help.append(new electron.remote.MenuItem({ type: 'separator' }));
-        help.append(new electron.remote.MenuItem({ label: 'Show &Log', click: () => electron.shell.showItemInFolder(this.logFilePath) }));
-        help.append(new electron.remote.MenuItem({ click: () => this.win.openDevTools(), label: '&Developer Tools' }));
-
-        menu.append(new electron.remote.MenuItem({
-            label: '&Help',
-            submenu: help
-        }));
-
+        const menu = electron.remote.Menu.buildFromTemplate(template)
         electron.remote.Menu.setApplicationMenu(menu);
     }
 
