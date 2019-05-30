@@ -4,7 +4,21 @@ const fs = require("fs");
 const os = require('os');
 const electron = require('electron');
 const log = require('electron-log');
-// const log = console; log.silly = log.verbose = log.debug = log.log;
+// const log = console; log.silly = log.verbose = log.debug = log.log; log.x = console.info;
+// const log = {
+//     silly: () => { },
+//     info: () => { },
+//     log: () => { },
+//     trace: () => { },
+//     verbose: () => { },
+//     debug: () => { },
+//     x: (...args) => {
+//         console.log(args);
+//     },
+//     error: (...args) => {
+//         console.error(args);
+//     }
+// }
 
 const packageJson = require('../../package.json');
 const LsysParametric = require('../LsysParametric.mjs');
@@ -23,6 +37,9 @@ module.exports = class GUI {
         Object.keys(options).forEach(key => {
             this[key] = options[key];
         });
+
+        log.transports.file.level = this.logLevel || 'info';
+        log.transports.console.level = this.logLevel || 'info';
 
         this.win = electron.remote.BrowserWindow.getFocusedWindow();
     }
@@ -72,15 +89,27 @@ module.exports = class GUI {
         if (el.nodeName === 'INPUT') {
             this.settings[el.id] = el.value.trim();
             log.silly('INPUT el %s changed to %s: ', el.id, this.settings[el.id], el);
-        } else {
-            this.settings[el.id] = el.innerText.trim();
-            log.silly('INNER TEXT el %s changed to %s: ', el.id, this.settings[el.id], el);
+        }
+
+        else {
+            const nodes = el.childNodes;
+            let text = '';
+
+            for (let i = 0; i < nodes.length; i++) {
+                switch (nodes[i].nodeName) {
+                    case '#text': text = text + nodes[i].nodeValue; break;
+                    case 'BR': text = text + '\n'; break;
+                }
+            }
+
+            this.settings[el.id] = text;
+            log.silly('INNER TEXT el %s changed to %s: ', el.id, this.settings[el.id], text, el);
         }
     }
 
     view(viewName) {
         try {
-            log.verbose('Hide:', this.currentViewName);
+            log.silly('Hide:', this.currentViewName);
             if (this.currentViewName) {
                 this.elements[this.currentViewName].style.display = 'none';
             }
@@ -114,23 +143,21 @@ module.exports = class GUI {
     }
 
     createMenu() {
-        // Presets.forEach((i, j) => {
-        //     const li = this.window.document.createElement('li');
-        //     li.innerText = i.title;
-        //     li.dataset.presetNumber = j;
-        //     li.addEventListener('click', (e) => {
-        //         this.loadPreset(e.target.dataset.presetNumber);
-        //     }, {
-        //             passive: true
-        //         });
-        //     ul.appendChild(li);
-        // });
-
         const template = [
             {
                 label: '&File',
                 submenu: [
-                    isMac ? { role: 'close' } : { role: 'quit' }
+                    {
+                        label: '&Load Preset',
+                        submenu: Presets.map((preset, index) => {
+                            return {
+                                label: preset.title,
+                                click: () => this.loadPreset(index)
+                            }
+                        })
+                    },
+                    { role: 'separator' },
+                    { role: 'quit' }
                 ]
             },
 
@@ -141,6 +168,8 @@ module.exports = class GUI {
                     { label: 'Settings', click: () => this.view('settings') }
                 ]
             },
+
+            { role: 'viewMenu' },
 
             {
                 label: '&Help',
@@ -153,6 +182,7 @@ module.exports = class GUI {
                     {
                         label: '&Support',
                         click: () => electron.shell.openExternalSync('https://lee.goddards.space')
+                    }
                 ]
             },
         ];
@@ -170,6 +200,8 @@ module.exports = class GUI {
 
         const canvas = this.window.document.createElement('canvas');
         this.elements.canvases.insertBefore(canvas, this.elements.canvases.firstChild);
+
+        log.info('Call Lsys with', this.settings);
 
         const lsys = new LsysParametric({
             ... this.settings,
@@ -222,11 +254,10 @@ module.exports = class GUI {
 
         Object.keys(Presets[idx]).forEach(id => {
             try {
-                log.debug('Preset set "%s" to "%s"', id, Presets[idx][id]);
+                log.verbose('Preset set "%s" to "%s"', id, Presets[idx][id]);
                 const el = this.window.document.getElementById(id);
-                log.debug(el);
                 if (el.nodeName === 'INPUT') {
-                    el.setAttribute('value', Presets[idx][id]);
+                    el.value = Presets[idx][id];
                 }
                 else {
                     el.innerText = Presets[idx][id];
@@ -240,21 +271,4 @@ module.exports = class GUI {
 
         this.window.document.getElementById('title').innerText = Presets[idx].title;
     }
-
-    installPresets() {
-        var ul = this.window.document.getElementById('presets');
-        log.debug('List presets', Presets);
-        Presets.forEach((i, j) => {
-            const li = this.window.document.createElement('li');
-            li.innerText = i.title;
-            li.dataset.presetNumber = j;
-            li.addEventListener('click', (e) => {
-                this.loadPreset(e.target.dataset.presetNumber);
-            }, {
-                    passive: true
-                });
-            ul.appendChild(li);
-        });
-    }
 }
-
