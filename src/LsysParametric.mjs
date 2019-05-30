@@ -29,7 +29,15 @@ rule p3
 
 const RAD = Math.PI / 180.0;
 
-export class LsysParametric {
+module.exports = class LsysParametric {
+	interpolateVarsRe = /(\$\w+)/g;
+	str2reRe = /(\w+)\(([^\)]+)\)/g;
+	xoffset = 0;
+	yoffset = 0;
+	generation = 0;
+	totalGenerations = null;
+	variables = null;
+	interpolateVarsRe = null;
 	options = {
 		start: 'F',
 		variables: '',
@@ -56,15 +64,9 @@ export class LsysParametric {
 		]
 	};
 
-	constructor(args) {
-		this.setOptions(args);
-
-		this.xoffset = 0;
-		this.yoffset = 0;
-		this.generation = 0;
-		this.totalGenerations = null;
-		this.variables = null;
-		this.interpolateVarsRe = null;
+	constructor(options) {
+		this.setOptions(options);
+		this.options.logger = this.options.logger || console;
 
 		this.initialize();
 
@@ -74,10 +76,8 @@ export class LsysParametric {
 
 		this.castRules();
 		this.castVariables();
-		this.interpolateVarsRe = /(\$\w+)/g;
-		this.str2reRe = /(\w+)\(([^\)]+)\)/g;
 
-		console.info('Variables: %O\nRules:\n%O', this.variables, this.options.rules);
+		this.options.logger.info('Variables: %O\nRules:\n%O', this.variables, this.options.rules);
 	};
 
 	initialize(options = {}) {
@@ -92,18 +92,27 @@ export class LsysParametric {
 		// Translate context to center of canvas:
 		this.ctx.translate(this.options.canvas.width / 2, this.options.canvas.height / 2);
 		// Flip context vertically
-		if (this.options.initially && typeof this.options.initially === 'function' ) {
+		if (this.options.initially && typeof this.options.initially === 'function') {
 			this.options.initially.call(this);
 		}
 	};
 
-	setOptions(options) {
-		options = options || {};
+	setOptions(options = {}) {
 		if (typeof options !== 'object') {
 			throw new TypeError('options was not an object, %O', options);
 		}
-		Object.keys(options).forEach((i) => {
-			if (typeof options[i] === 'string') {
+
+		this.options.logger.debug('setOptions: ', options);
+
+		Object.keys(options).forEach(i => {
+			if (typeof options[i] === 'undefined') {
+				throw new Error('Missing arg "' + i + '"');
+			}
+
+			else if (typeof options[i] === 'string') {
+				if (i !== 'variables' && options[i].length === 0) {
+					throw new TypeError('Sting should have value: opttions.' + i);
+				}
 				if (options[i].match(/^\s*[.\d+]+\s*$/)) {
 					options[i] = parseFloat(options[i]);
 				}
@@ -111,7 +120,10 @@ export class LsysParametric {
 					options[i] = Number(options[i]);
 				}
 			}
+
 			this.options[i] = options[i];
+			this.options.logger.debug('SET OPTIONS %s to %s', i, options[i]);
+
 		});
 	};
 
@@ -180,7 +192,7 @@ export class LsysParametric {
 
 	generate(generations) {
 		this.totalGenerations = generations;
-		console.debug('Enter generate to create %d generations', this.totalGenerations);
+		this.options.logger.debug('Enter generate to create %d generations', this.totalGenerations);
 
 		this.content = this.options.start;
 		this.content = this.interploateVars(this.content);
@@ -195,7 +207,7 @@ export class LsysParametric {
 
 		this.finalise();
 
-		console.debug('Leave generate');
+		this.options.logger.debug('Leave generate');
 		return this;
 	};
 
@@ -207,7 +219,7 @@ export class LsysParametric {
 					this.variables[match] : match;
 			}
 		);
-		console.log('Interpolate vars: %s ... %s', str, rv);
+		this.options.logger.debug('Interpolate vars: %s ... %s', str, rv);
 		return rv;
 	};
 
@@ -232,14 +244,14 @@ export class LsysParametric {
 	};
 
 	applyRules() {
-		console.debug('Enter applyRules for generation ' + this.generation);
+		this.options.logger.debug('Enter applyRules for generation ' + this.generation);
 		let finalContent = '';
 
 		// Itterate over atoms within the content?
 		const atoms = this.content.match(/(.(\([^)]+\))?)/g);
 		if (this.content != atoms.join('')) {
-			console.error(atoms);
-			console.error('atoms ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^');
+			this.options.logger.error(atoms);
+			this.options.logger.error('atoms ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^');
 			throw new Error('Atomic regex failed, results would be wrong');
 		}
 
@@ -252,13 +264,13 @@ export class LsysParametric {
 				ruleNumber++;
 
 				if (ruleSuccessfullyApplied) {
-					console.log('Skip rule ' + ruleNumber + ' as have made substituion');
+					this.options.logger.debug('Skip rule ' + ruleNumber + ' as have made substituion');
 					return;
 				}
 
 				// Re-write the rule to replace variables with literals, where possible:
 				const [rule2findRe, ruleArgNames] = this.string2reAndArgNames(rule[0]);
-				console.log('Rule ' + ruleNumber + ' says find ' + rule[0] + ' in content of ' + atom + ' using ', rule2findRe);
+				this.options.logger.debug('Rule ' + ruleNumber + ' says find ' + rule[0] + ' in content of ' + atom + ' using ', rule2findRe);
 
 				// Find the rule pattern (left-hand side of condition)
 				// and replace if condition is met
@@ -276,7 +288,7 @@ export class LsysParametric {
 
 						// Get the rule code:
 						const ruleConditionJs = this.interploateVars(rule[1]);
-						console.log('Rule ' + ruleNumber + ' condition: ' + ruleConditionJs);
+						this.options.logger.debug('Rule ' + ruleNumber + ' condition: ' + ruleConditionJs);
 
 						// Decide if the substitution take place
 						let ruleConditionMet = ruleConditionJs.length === 0; // || eval ruleConditionMet
@@ -285,19 +297,19 @@ export class LsysParametric {
 							try {
 								ruleConditionMet = eval(ruleConditionJs);
 							} catch (e) {
-								console.warn(e);
+								this.options.logger.warn(e);
 							}
 						}
 
 						// No substitutions
 						if (!ruleConditionMet) {
-							console.debug('Condition not met');
+							this.options.logger.debug('Condition not met');
 							return original;
 						}
 
 						ruleSuccessfullyApplied = true;
 						const substituted = this.interploateVars(rule[2]);
-						console.log('Condition met:------> substituted result = ' + rule[2] + '  RV== ' + substituted);
+						this.options.logger.debug('Condition met:------> substituted result = ' + rule[2] + '  RV== ' + substituted);
 
 						return substituted;
 					} // end of replacement function
@@ -307,7 +319,7 @@ export class LsysParametric {
 				// do not write this into the string:
 				if (ruleSuccessfullyApplied) {
 					atom = atomAfterRuleApplied;
-					console.log('After fulfilled rule ' + ruleNumber + ' was applied, atom is: ' + atom);
+					this.options.logger.debug('After fulfilled rule ' + ruleNumber + ' was applied, atom is: ' + atom);
 					return;
 				}
 
@@ -318,8 +330,8 @@ export class LsysParametric {
 
 		this.content = finalContent;
 
-		console.debug('After all rules were applied, content is: ', this.content);
-		console.log(
+		this.options.logger.debug('After all rules were applied, content is: ', this.content);
+		this.options.logger.debug(
 			'# FINAL for generation ' + this.generation + '/' + this.totalGenerations +
 			' ############################ Content: ' + this.content
 		);
@@ -335,7 +347,7 @@ export class LsysParametric {
 		for (let i = 0; i < this.content.length; i++) {
 			let draw = true;
 			this.penUp = false;
-			// console.log('Do '+i);
+			// this.options.logger.debug('Do '+i);
 			switch (this.content.charAt(i)
 				.toLowerCase()) {
 				// Set the generation
@@ -380,17 +392,17 @@ export class LsysParametric {
 	};
 
 	finalise() {
-		console.debug('Enter finalise');
+		this.options.logger.debug('Enter finalise');
 		if (this.options.finally && typeof this.options.finally === 'function') {
-			console.debug('Call finally');
+			this.options.logger.debug('Call finally');
 			this.options.finally.call(this);
 		}
 		this.resize();
-		console.debug('Leave finalise');
+		this.options.logger.debug('Leave finalise');
 	};
 
 	turtleGraph(dir) {
-		// console.debug('Move '+dir +' from '+this.x+','+this.y);
+		// this.options.logger.debug('Move '+dir +' from '+this.x+','+this.y);
 
 		this.ctx.beginPath();
 		if (this.options.timeScaleLines > 0) {
@@ -415,7 +427,7 @@ export class LsysParametric {
 		if (this.y > this.maxY) this.maxY = this.y;
 		if (this.x < this.minX) this.minX = this.x;
 		if (this.y < this.minY) this.minY = this.y;
-		// console.debug('...to '+this.x+','+this.y);
+		// this.options.logger.debug('...to '+this.x+','+this.y);
 	};
 
 	setWidth(px) {
@@ -428,7 +440,7 @@ export class LsysParametric {
 	};
 
 	resize() {
-		console.debug('Min: %d , %d\nMax: %d , %d', this.minX, this.minY, this.maxX, this.maxY);
+		this.options.logger.debug('Min: %d , %d\nMax: %d , %d', this.minX, this.minY, this.maxX, this.maxY);
 		const wi = (this.minX < 0) ?
 			Math.abs(this.minX) + Math.abs(this.maxX) : this.maxX - this.minX;
 		const hi = (this.minY < 0) ?
@@ -456,8 +468,8 @@ export class LsysParametric {
 			this.y -= this.minY;
 
 			this.render();
-			console.debug('Resized via scale %d, %d', sx, sy);
+			this.options.logger.debug('Resized via scale %d, %d', sx, sy);
 		}
-		console.debug('Leave resize');
+		this.options.logger.debug('Leave resize');
 	};
 }
