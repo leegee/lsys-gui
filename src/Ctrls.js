@@ -76,7 +76,7 @@ export class Ctrls {
             options.canvas = this.canvases.insertBefore(canvas, this.canvases.firstChild);;
 
             const lsys = new LsysParametric(options, canvas);
-            lsys.generate(options.total_generations);
+            lsys.generate(options.totalGenerations);
             if (this.elTimeDisplay) {
                 this.elTimeDisplay.innerText = 'Generated in ' + (new Date().getTime() - (elTimeDisplay.get('text'))) + ' ms';
             }

@@ -1,7 +1,7 @@
 module.exports = [
     {
         title: 'Weed',
-        total_generations: 5,
+        totalGenerations: 5,
         variables: '',
         start: 'X',
         initY: 400,
@@ -12,7 +12,7 @@ module.exports = [
         canvasHeight: 760,
         turtleStepX: 10,
         turtleStepY: 10,
-        wrap_angle_at: 0,
+        wrapAngleAt: 0,
         lineWidth: 11,
         initially: function () {
             this.ctx.rotate(
@@ -27,12 +27,12 @@ module.exports = [
         rules: 'F -> FF-F-F-F-FF\n',
         start: 'F-F-F-F',
         angle: 90,
-        total_generations: 4,
+        totalGenerations: 4,
         canvasWidth: 500,
         canvasHeight: 500,
         turtleStepX: 5,
         turtleStepY: 5,
-        wrap_angle_at: 0,
+        wrapAngleAt: 0,
         lineWidth: 1
     },
 
@@ -42,14 +42,14 @@ module.exports = [
         rules: 'F -> C0FF-F-F-F-F-FC1+F\n',
         start: 'F-F-F-F',
         angle: 90,
-        total_generations: 4,
+        totalGenerations: 4,
         initX: 360,
         initY: 360,
         canvasWidth: 500,
         canvasHeight: 500,
         turtleStepX: 2,
         turtleStepY: 2,
-        wrap_angle_at: 0,
+        wrapAngleAt: 0,
         lineWidth: 1
     },
 
@@ -66,8 +66,8 @@ module.exports = [
         canvasHeight: 600,
         turtleStepX: 5,
         turtleStepY: 5,
-        total_generations: 5,
-        wrap_angle_at: 0,
+        totalGenerations: 5,
+        wrapAngleAt: 0,
         lineWidth: 0.4,
         time_scale_lines: 5
     },
@@ -90,7 +90,7 @@ module.exports = [
         canvasHeight: 1000,
         turtleStepX: 4,
         turtleStepY: 4,
-        total_generations: 10,
+        totalGenerations: 10,
         lineWidth: 4
     },
 
@@ -106,9 +106,9 @@ module.exports = [
         canvasHeight: 1000,
         turtleStepX: 4,
         turtleStepY: 4,
-        total_generations: 5,
+        totalGenerations: 5,
         lineWidth: 1,
-        wrap_angle_at: 12
+        wrapAngleAt: 12
     },
 
     {
@@ -123,9 +123,9 @@ module.exports = [
         canvasHeight: 1000,
         turtleStepX: 8,
         turtleStepY: 8,
-        total_generations: 6,
+        totalGenerations: 6,
         lineWidth: 3,
-        wrap_angle_at: 12
+        wrapAngleAt: 12
     }, {
         title: 'Tree x',
         variables: '',
@@ -138,9 +138,9 @@ module.exports = [
         canvasHeight: 1000,
         turtleStepX: 8,
         turtleStepY: 8,
-        total_generations: 6,
+        totalGenerations: 6,
         lineWidth: 3,
-        wrap_angle_at: 12
+        wrapAngleAt: 12
     },
 
     {
@@ -155,9 +155,9 @@ module.exports = [
         canvasHeight: 1000,
         turtleStepX: 10,
         turtleStepY: 10,
-        total_generations: 2,
+        totalGenerations: 2,
         lineWidth: 3,
-        wrap_angle_at: 12
+        wrapAngleAt: 12
     },
 
     {
@@ -172,9 +172,9 @@ module.exports = [
         canvasHeight: 1000,
         turtleStepX: 10,
         turtleStepY: 10,
-        total_generations: 4,
+        totalGenerations: 4,
         lineWidth: 3,
-        wrap_angle_at: 12
+        wrapAngleAt: 12
     },
 
     {
@@ -189,9 +189,9 @@ module.exports = [
         canvasHeight: 1000,
         turtleStepX: 4,
         turtleStepY: 4,
-        total_generations: 4,
+        totalGenerations: 4,
         lineWidth: 6,
-        wrap_angle_at: 12
+        wrapAngleAt: 12
     },
 
     {
@@ -206,8 +206,8 @@ module.exports = [
         canvasHeight: 1000,
         turtleStepX: 4,
         turtleStepY: 4,
-        total_generations: 5,
-        wrap_angle_at: 12
+        totalGenerations: 5,
+        wrapAngleAt: 12
     },
 
     {
@@ -222,8 +222,8 @@ module.exports = [
         canvasHeight: 1000,
         turtleStepX: 4,
         turtleStepY: 4,
-        total_generations: 5,
-        wrap_angle_at: 12
+        totalGenerations: 5,
+        wrapAngleAt: 12
     },
 
     {
@@ -238,8 +238,8 @@ module.exports = [
         canvasHeight: 1000,
         turtleStepX: 5,
         turtleStepY: 5,
-        total_generations: 7,
+        totalGenerations: 7,
         lineWidth: 8,
-        wrap_angle_at: 12
+        wrapAngleAt: 12
     }
 ];

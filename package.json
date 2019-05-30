@@ -5,7 +5,7 @@
 	"scripts": {
 		"build": "webpack",
 		"start:webpack": "webpack-dev-server --open --config ./webpack.config.js",
-		"start": "electron src/gui/electron-app.js",
+		"start": "electron src/gui/index.js",
 		"test": "mocha -r jsdom-global/register  -r @babel/register"
 	},
 	"keywords": [

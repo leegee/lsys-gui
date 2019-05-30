@@ -2,7 +2,7 @@ export const Presets = [
 
 	{
 		title: 'Weed',
-		total_generations: 5,
+		totalGenerations: 5,
 		variables: '',
 		start: 'X',
 		init_y: 400,
@@ -13,7 +13,7 @@ export const Presets = [
 		canvas_height: 760,
 		turtle_step_x: 10,
 		turtle_step_y: 10,
-		wrap_angle_at: 0,
+		wrapAngleAt: 0,
 		line_width: 11,
 		initially: function () {
 			this.ctx.rotate(
@@ -28,12 +28,12 @@ export const Presets = [
 		rules: 'F -> FF-F-F-F-FF\n',
 		start: 'F-F-F-F',
 		angle: 90,
-		total_generations: 4,
+		totalGenerations: 4,
 		canvas_width: 500,
 		canvas_height: 500,
 		turtle_step_x: 5,
 		turtle_step_y: 5,
-		wrap_angle_at: 0,
+		wrapAngleAt: 0,
 		line_width: 1
 	},
 
@@ -43,14 +43,14 @@ export const Presets = [
 		rules: 'F -> C0FF-F-F-F-F-FC1+F\n',
 		start: 'F-F-F-F',
 		angle: 90,
-		total_generations: 4,
+		totalGenerations: 4,
 		init_x: 360,
 		init_y: 360,
 		canvas_width: 500,
 		canvas_height: 500,
 		turtle_step_x: 2,
 		turtle_step_y: 2,
-		wrap_angle_at: 0,
+		wrapAngleAt: 0,
 		line_width: 1
 	},
 
@@ -67,8 +67,8 @@ export const Presets = [
 		canvas_height: 600,
 		turtle_step_x: 5,
 		turtle_step_y: 5,
-		total_generations: 5,
-		wrap_angle_at: 0,
+		totalGenerations: 5,
+		wrapAngleAt: 0,
 		line_width: 0.4,
 		time_scale_lines: 5
 	},
@@ -91,7 +91,7 @@ export const Presets = [
 		canvas_height: 1000,
 		turtle_step_x: 4,
 		turtle_step_y: 4,
-		total_generations: 10,
+		totalGenerations: 10,
 		line_width: 4
 	},
 
@@ -107,9 +107,9 @@ export const Presets = [
 		canvas_height: 1000,
 		turtle_step_x: 4,
 		turtle_step_y: 4,
-		total_generations: 5,
+		totalGenerations: 5,
 		line_width: 1,
-		wrap_angle_at: 12
+		wrapAngleAt: 12
 	},
 
 	{
@@ -124,9 +124,9 @@ export const Presets = [
 		canvas_height: 1000,
 		turtle_step_x: 8,
 		turtle_step_y: 8,
-		total_generations: 6,
+		totalGenerations: 6,
 		line_width: 3,
-		wrap_angle_at: 12
+		wrapAngleAt: 12
 	}, {
 		title: 'Tree x',
 		variables: '',
@@ -139,9 +139,9 @@ export const Presets = [
 		canvas_height: 1000,
 		turtle_step_x: 8,
 		turtle_step_y: 8,
-		total_generations: 6,
+		totalGenerations: 6,
 		line_width: 3,
-		wrap_angle_at: 12
+		wrapAngleAt: 12
 	},
 
 	{
@@ -156,9 +156,9 @@ export const Presets = [
 		canvas_height: 1000,
 		turtle_step_x: 10,
 		turtle_step_y: 10,
-		total_generations: 2,
+		totalGenerations: 2,
 		line_width: 3,
-		wrap_angle_at: 12
+		wrapAngleAt: 12
 	},
 
 	{
@@ -173,9 +173,9 @@ export const Presets = [
 		canvas_height: 1000,
 		turtle_step_x: 10,
 		turtle_step_y: 10,
-		total_generations: 4,
+		totalGenerations: 4,
 		line_width: 3,
-		wrap_angle_at: 12
+		wrapAngleAt: 12
 	},
 
 	{
@@ -190,9 +190,9 @@ export const Presets = [
 		canvas_height: 1000,
 		turtle_step_x: 4,
 		turtle_step_y: 4,
-		total_generations: 4,
+		totalGenerations: 4,
 		line_width: 6,
-		wrap_angle_at: 12
+		wrapAngleAt: 12
 	},
 
 	{
@@ -207,8 +207,8 @@ export const Presets = [
 		canvas_height: 1000,
 		turtle_step_x: 4,
 		turtle_step_y: 4,
-		total_generations: 5,
-		wrap_angle_at: 12
+		totalGenerations: 5,
+		wrapAngleAt: 12
 	},
 
 	{
@@ -223,8 +223,8 @@ export const Presets = [
 		canvas_height: 1000,
 		turtle_step_x: 4,
 		turtle_step_y: 4,
-		total_generations: 5,
-		wrap_angle_at: 12
+		totalGenerations: 5,
+		wrapAngleAt: 12
 	},
 
 	{
@@ -239,8 +239,8 @@ export const Presets = [
 		canvas_height: 1000,
 		turtle_step_x: 5,
 		turtle_step_y: 5,
-		total_generations: 7,
+		totalGenerations: 7,
 		line_width: 8,
-		wrap_angle_at: 12
+		wrapAngleAt: 12
 	}
 ];

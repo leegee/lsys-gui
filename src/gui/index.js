@@ -22,7 +22,6 @@ const createWindow = () => {
         },
         width: appConfig.gui.width,
         height: appConfig.gui.height,
-        // frame: false,
         icon: path.join(__dirname, '../../icon.png')
     });
 

@@ -207,7 +207,7 @@ describe('Generated content', () => {
 				var lsys = new LsysParametric(defaultOptions);
 				lsys.generate(g);
 				expect(lsys.generation).to.equal(g, 'lsys.generation ' + g);
-				expect(lsys.total_generations).to.equal(g, 'total_generations ' + g);
+				expect(lsys.totalGenerations).to.equal(g, 'totalGenerations ' + g);
 				expect(lsys.content).to.equal(expectContent[g], 'content ' + g);
 			} catch (e) {
 				console.error(e)

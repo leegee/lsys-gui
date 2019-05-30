@@ -36,7 +36,7 @@ export class Lsys {
 		this.xoffset = 0;
 		this.yoffset = 0;
 		this.generation = 0;
-		this.total_generations = null;
+		this.totalGenerations = null;
 		this.variables = null;
 		this.interpolateVarsRe = null;
 
@@ -149,15 +149,15 @@ export class Lsys {
 	};
 
 	generate(generations) {
-		this.total_generations = generations;
+		this.totalGenerations = generations;
 
-		console.debug('Enter to create %d generations', this.total_generations);
+		console.debug('Enter to create %d generations', this.totalGenerations);
 
 		this.content = this.options.start;
 		this.content = this.interploateVars(this.content);
 
 		for (
-			this.generation = 1; this.generation <= this.total_generations; this.generation++
+			this.generation = 1; this.generation <= this.totalGenerations; this.generation++
 		) {
 			this.apply_rules();
 			// console.info(this.content);
@@ -295,7 +295,7 @@ export class Lsys {
 
 		console.log('After all rules were applied, content is: ', this.content);
 		console.log(
-			'# FINAL for generation ' + this.generation + '/' + this.total_generations +
+			'# FINAL for generation ' + this.generation + '/' + this.totalGenerations +
 			' ############################ Content: ' + this.content
 		);
 	};

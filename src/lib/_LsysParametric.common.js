@@ -72,7 +72,7 @@ const exports = module.exports = function Lsys (options) {
 	this.xoffset           = 0;
 	this.yoffset           = 0;
 	this.generation        = 0;
-	this.total_generations = null;
+	this.totalGenerations = null;
 	this.variables         = null;
 	this.interpolateVarsRe = null;
 
@@ -183,15 +183,15 @@ exports.prototype.dcos = function (radians) {
 };
 
 exports.prototype.generate = function (generations) {
-	this.total_generations = generations;
+	this.totalGenerations = generations;
 
-	console.debug('Enter to create %d generations', this.total_generations);
+	console.debug('Enter to create %d generations', this.totalGenerations);
 
 	this.content = this.options.start;
 	this.content = this.interploateVars(this.content);
 
 	for (
-		this.generation = 1; this.generation <= this.total_generations; this.generation++
+		this.generation = 1; this.generation <= this.totalGenerations; this.generation++
 	) {
 		this.apply_rules();
         console.info( this.content );
@@ -333,7 +333,7 @@ exports.prototype.apply_rules = function () {
 
 	console.log('After all rules were applied, content is: ', self.content);
 	console.log(
-		'# FINAL for generation ' + this.generation + '/' + this.total_generations +
+		'# FINAL for generation ' + this.generation + '/' + this.totalGenerations +
 		' ############################ Content: ' + self.content
 	);
 };

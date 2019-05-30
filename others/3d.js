@@ -17,7 +17,7 @@ var presets = [
 		canvasHeight: 100,
 		turtleStepX: 1,
 		turtleStepY: 2,
-		wrap_angle_at: 0,
+		wrapAngleAt: 0,
 		lineWidth: 1
 	},
 
@@ -34,7 +34,7 @@ var presets = [
 		canvasHeight: 500,
 		turtleStepX: 5,
 		turtleStepY: 5,
-		wrap_angle_at: 0,
+		wrapAngleAt: 0,
 		lineWidth: 1
 	},
 
@@ -51,7 +51,7 @@ var presets = [
 		canvasHeight: 500,
 		turtleStepX: 2,
 		turtleStepY: 2,
-		wrap_angle_at: 0,
+		wrapAngleAt: 0,
 		lineWidth: 1
 	},
 
@@ -69,7 +69,7 @@ var presets = [
 		turtleStepX: 5,
 		turtleStepY: 5,
 		generations: 5,
-		wrap_angle_at: 0,
+		wrapAngleAt: 0,
 		lineWidth: 0.4,
 		time_scale_lines: 5
 	},
@@ -110,7 +110,7 @@ var presets = [
 		turtleStepY: 4,
 		generations: 5,
 		lineWidth: 1,
-		wrap_angle_at: 12
+		wrapAngleAt: 12
 	},
 
 	{
@@ -127,7 +127,7 @@ var presets = [
 		turtleStepY: 8,
 		generations: 6,
 		lineWidth: 3,
-		wrap_angle_at: 12
+		wrapAngleAt: 12
 	}, {
 		title: 'Tree x',
 		variables: '',
@@ -142,7 +142,7 @@ var presets = [
 		turtleStepY: 8,
 		generations: 6,
 		lineWidth: 3,
-		wrap_angle_at: 12
+		wrapAngleAt: 12
 	},
 
 	{
@@ -159,7 +159,7 @@ var presets = [
 		turtleStepY: 10,
 		generations: 2,
 		lineWidth: 3,
-		wrap_angle_at: 12
+		wrapAngleAt: 12
 	},
 
 	{
@@ -176,7 +176,7 @@ var presets = [
 		turtleStepY: 10,
 		generations: 4,
 		lineWidth: 3,
-		wrap_angle_at: 12
+		wrapAngleAt: 12
 	},
 
 	{
@@ -193,7 +193,7 @@ var presets = [
 		turtleStepY: 4,
 		generations: 4,
 		lineWidth: 6,
-		wrap_angle_at: 12
+		wrapAngleAt: 12
 	},
 
 	{
@@ -209,7 +209,7 @@ var presets = [
 		turtleStepX: 4,
 		turtleStepY: 4,
 		generations: 5,
-		wrap_angle_at: 12
+		wrapAngleAt: 12
 	},
 
 	{
@@ -225,7 +225,7 @@ var presets = [
 		turtleStepX: 4,
 		turtleStepY: 4,
 		generations: 5,
-		wrap_angle_at: 12
+		wrapAngleAt: 12
 	},
 
 	{
@@ -243,7 +243,7 @@ var presets = [
 		turtleStepY: 5,
 		generations: 7,
 		lineWidth: 8,
-		wrap_angle_at: 12
+		wrapAngleAt: 12
 	}
 ];
 

@@ -1,7 +1,8 @@
-const GUI = require('./gui.mjs');
-const appConfig = require('../../app.config');
+const electron = require('electron');
 
+const GUI = require('./gui.mjs');
 const handleError = require('./electron-error.mjs');
+const appConfig = require('../../app.config');
 
 window.addEventListener('error', event => {
     event.preventDefault();
@@ -13,20 +14,21 @@ window.addEventListener('unhandledrejection', event => {
     handleError('Unhandled Promise Rejection', event.reason);
 });
 
-const elements = [
-    'viewMain', 'viewSettings', 'actionGenerate', 'actionCreateMidi', 'canvases'
-].reduce((o, key) => {
-    o[key] = window.document.getElementById(key);
-    return o;
-}, {});
+window.addEventListener('DOMContentLoaded', () => {
+    const elements = [
+        'viewMain', 'viewSettings', 'actionGenerate', 'actionCreateMidi', 'canvases'
+    ].reduce((o, key) => {
+        o[key] = window.document.getElementById(key);
+        return o;
+    }, {});
 
-console.log(elements);
+    const gui = new GUI({
+        window,
+        appConfig,
+        elements
+    });
 
-const gui = new GUI({
-    window,
-    appConfig,
-    elements
+    gui.init();
 });
 
-gui.init();
 

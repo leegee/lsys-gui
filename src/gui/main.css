@@ -19,17 +19,11 @@ nav {
 	margin-bottom: 40pt;
 }
 
-fieldset.small {
-	padding: 0 8pt;
-}
-fieldset.small * {
-	font-size: 10pt;
-}
-
 .errors {
 	color: red;
 	font-weight: bold;
 }
+
 .knob {
 	outline: 0;
 	border: 1px solid black;
@@ -50,56 +44,86 @@ fieldset.small * {
 	width: 49%;
 	float: left;
 }
+
 .right {
 	width: 49%;
 	float: right;
 }
+
 canvas {
 	border: 1px solid gray;
 	width: 100%;
 }
+
 fieldset {
+	width: 100%;
 	border: 1px solid gray;
 	margin-bottom: 1em;
+	display: table-cell;
 }
+
+fieldset.small {
+	padding: 0 8pt;
+}
+
+fieldset.small * {
+	font-size: 10pt;
+}
+
 legend {
 	padding-left: .2em;
 	padding-right: .2em;
 }
+
 label {
-	text-align: right;
-	display: inline-block;
+	/* text-align: right; */
+	vertical-align: middle;
+	/* display: inline-block; */
 	margin-right: .5em;
+	line-height: 1.6
 }
+
 label.long {
 	width: 100%;
 	text-align: left;
 	margin-bottom: 2pt;
 }
+
+input[type='range'] {
+	vertical-align: middle;
+	line-height: 1.6
+}
+
 input[type="text"] {
 	width: 2em;
 	margin-right: 1em;
 	border: none;
 	border-bottom: 1px dotted gray;
 }
+
 textarea {
-    width: 99%;
-    min-height: 7em;
-    overflow: auto;
+	width: 99%;
+	min-height: 7em;
+	overflow: auto;
 }
+
 #presets {
 	margin: 0;
 	padding: 0;
 }
+
 #presets li {
 	display: block;
 	margin-right: 1em;
 	margin-left: 0;
 }
+
 #presets li:hover {
 	text-decoration: underline;
-	cursor:pointer;cursor:hand;
+	cursor: pointer;
+	cursor: hand;
 }
+
 .submit {
 	border-top: 2px solid gray;
 	padding-top: 1em;

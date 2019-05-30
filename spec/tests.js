@@ -165,7 +165,7 @@ test('Generated content', function () {
 			var lsys = new Lsys(defaultOptions);
 			lsys.generate(g);
 			equal(lsys.generation, g, 'lsys.generation ' + g);
-			equal(lsys.total_generations, g, 'total_generations ' + g);
+			equal(lsys.totalGenerations, g, 'totalGenerations ' + g);
 			equal(lsys.content, expectContent[g], 'content ' + g);
 		} catch (e) {
 			console.error(e)

@@ -66,12 +66,11 @@ module.exports = class LsysParametric {
 
 	constructor(options) {
 		this.setOptions(options);
-		this.options.logger = this.options.logger || console;
 
 		this.initialize();
 
-		this.x = this.maxX = this.minX = this.options.initX || 0;
-		this.y = this.maxY = this.minY = this.options.initY || 0;
+		this.x = this.maxX = this.minX = (this.options.initX || 0);
+		this.y = this.maxY = this.minY = (this.options.initY || 0);
 		this.content = '';
 
 		this.castRules();
@@ -102,17 +101,13 @@ module.exports = class LsysParametric {
 			throw new TypeError('options was not an object, %O', options);
 		}
 
-		this.options.logger.debug('setOptions: ', options);
+		this.options.logger = options.logger || console;
+		delete options.logger;
+
+		this.options.logger.info('setOptions: ', options);
 
 		Object.keys(options).forEach(i => {
-			if (typeof options[i] === 'undefined') {
-				throw new Error('Missing arg "' + i + '"');
-			}
-
-			else if (typeof options[i] === 'string') {
-				if (i !== 'variables' && options[i].length === 0) {
-					throw new TypeError('Sting should have value: opttions.' + i);
-				}
+			if (typeof options[i] === 'string') {
 				if (options[i].match(/^\s*[.\d+]+\s*$/)) {
 					options[i] = parseFloat(options[i]);
 				}
@@ -120,10 +115,10 @@ module.exports = class LsysParametric {
 					options[i] = Number(options[i]);
 				}
 			}
-
-			this.options[i] = options[i];
-			this.options.logger.debug('SET OPTIONS %s to %s', i, options[i]);
-
+			if (options[i] || options[i] === 0) {
+				this.options[i] = options[i];
+				this.options.logger.debug('SET OPTIONS "%s" to "%s"', i, options[i]);
+			}
 		});
 	};
 
@@ -154,6 +149,11 @@ module.exports = class LsysParametric {
 		*/
 	castRules(strRules) {
 		strRules = strRules || this.options.rules;
+
+		if (!strRules) {
+			throw new TypeError('No rules?');
+		}
+
 		const rv = [];
 
 		// F(s,o) : s == AS && o == R -> F(AS,L)F(BS,R) \n
@@ -190,7 +190,10 @@ module.exports = class LsysParametric {
 		return Math.cos(radians * RAD)
 	};
 
-	generate(generations) {
+	generate(generations = 0) {
+		if (!generations) {
+			throw new TypeError('Called .generate() without an argument');
+		}
 		this.totalGenerations = generations;
 		this.options.logger.debug('Enter generate to create %d generations', this.totalGenerations);
 
@@ -440,7 +443,7 @@ module.exports = class LsysParametric {
 	};
 
 	resize() {
-		this.options.logger.debug('Min: %d , %d\nMax: %d , %d', this.minX, this.minY, this.maxX, this.maxY);
+		this.options.logger.debug('Resize Min: %d , %d\nMax: %d , %d', this.minX, this.minY, this.maxX, this.maxY);
 		const wi = (this.minX < 0) ?
 			Math.abs(this.minX) + Math.abs(this.maxX) : this.maxX - this.minX;
 		const hi = (this.minY < 0) ?
