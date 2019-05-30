@@ -1,53 +1,46 @@
+* {
+	box-sizing: border-box;
+}
+
 body, textarea, input {
 	background: black;
 	color: #ddd;
 }
 
-body {
+.main-window section {
+	display: none;
+}
+
+html, body {
 	font-family: Helvetica, sans;
+	width: 100%;
+	margin: 0;
+	padding: 0;
 }
 
-h1 {
-	float: left;
-	width: auto;
+body {
+	padding: 0.4em;
 }
 
-nav {
-	clear: right;
-	float: right;
-	margin: 2em;
-	margin-bottom: 40pt;
+.grid {
+	display: table;
+	width: 100%;
 }
 
-.errors {
-	color: red;
-	font-weight: bold;
+.row {
+	display: table-row;
+	vertical-align: middle;
+	width: 100%;
 }
 
-.knob {
-	outline: 0;
-	border: 1px solid black;
-	background: silver;
-	text-align: center;
-	border-radius: 50%;
-	font-size: 1em;
-	width: 2em;
-	height: 2em;
-	background: gold;
-	border: 2px solid gray;
-	background-image: -moz-radial-gradient(12pt 12pt 45deg, circle cover, white 0%, gray 100%, black 95%);
-	background-image: -webkit-radial-gradient(12pt 12pt, circle cover, white, gray);
-	background-image: radial-gradient(12pt 12pt 45deg, circle cover, white 0%, gray 100%, black 95%);
-}
-
-.left {
+.col {
+	display: table-cell;
+	vertical-align: middle;
 	width: 49%;
-	float: left;
 }
 
-.right {
-	width: 49%;
-	float: right;
+.col:nth-of-type(2) {
+	margin-left: 1%;
 }
 
 canvas {
@@ -76,17 +69,10 @@ legend {
 }
 
 label {
-	/* text-align: right; */
 	vertical-align: middle;
-	/* display: inline-block; */
 	margin-right: .5em;
-	line-height: 1.6
-}
-
-label.long {
+	line-height: 1.6;
 	width: 100%;
-	text-align: left;
-	margin-bottom: 2pt;
 }
 
 input[type='range'] {
@@ -102,8 +88,7 @@ input[type="text"] {
 }
 
 textarea {
-	width: 99%;
-	min-height: 7em;
+	width: 100%;
 	overflow: auto;
 }
 
@@ -127,8 +112,4 @@ textarea {
 .submit {
 	border-top: 2px solid gray;
 	padding-top: 1em;
-}
-
-.main-window section {
-	display: none;
 }
