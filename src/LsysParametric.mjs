@@ -350,28 +350,23 @@ module.exports = class LsysParametric {
 		for (let i = 0; i < this.content.length; i++) {
 			let draw = true;
 			this.penUp = false;
+			
 			// this.options.logger.debug('Do '+i);
-			switch (this.content.charAt(i)
-				.toLowerCase()) {
-				// Set the generation
-				case 'f':
-					// this.penUp = true; why pen up going forards? nuts.
+			
+			switch (this.content.charAt(i).toLowerCase()) {
+				case 'f': // Forwards
 					break;
-				// Set colour
-				case 'c':
+				case 'c': // Set colour
 					this.setColour(parseInt(this.content.charAt(++i), 10));
 					draw = false;
 					break;
-				// Turn one way
-				case '+':
+				case '+': // Right
 					dir += this.options.angle;
 					break;
-				// Turn the other way
-				case '-':
+				case '-': // Left
 					dir -= this.options.angle;
 					break;
-				// Start a branch
-				case '[':
+				case '[': // Start a branch
 					states.push([dir, this.x, this.y, this.colour, this.stepped]);
 					draw = false;
 					break;
@@ -414,8 +409,8 @@ module.exports = class LsysParametric {
 		else if (this.options.lineWidth) {
 			this.ctx.lineWidth = this.options.lineWidth;
 		}
-		this.ctx.moveTo(this.x, this.y);
 
+		this.ctx.moveTo(this.x, this.y);
 		this.x += (this.dcos(dir) * this.options.turtleStepX);
 		this.y += (this.dsin(dir) * this.options.turtleStepY);
 
@@ -424,12 +419,13 @@ module.exports = class LsysParametric {
 
 		this.ctx.lineTo(this.x, this.y);
 		this.ctx.closePath();
-		if (!this.penUp) this.ctx.stroke();
 
+		if (!this.penUp) this.ctx.stroke();
 		if (this.x > this.maxX) this.maxX = this.x;
 		if (this.y > this.maxY) this.maxY = this.y;
 		if (this.x < this.minX) this.minX = this.x;
 		if (this.y < this.minY) this.minY = this.y;
+
 		// this.options.logger.debug('...to '+this.x+','+this.y);
 	};
 

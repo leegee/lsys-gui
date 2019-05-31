@@ -1,5 +1,5 @@
 module.exports = {
-    dev: false,
+    dev: true,
     gui: {
         width: 1000,
         height: 1000,

@@ -3,22 +3,7 @@ const path = require('path');
 const fs = require("fs");
 const os = require('os');
 const electron = require('electron');
-const log = require('electron-log');
-// const log = console; log.silly = log.verbose = log.debug = log.log; log.x = console.info;
-// const log = {
-//     silly: () => { },
-//     info: () => { },
-//     log: () => { },
-//     trace: () => { },
-//     verbose: () => { },
-//     debug: () => { },
-//     x: (...args) => {
-//         console.log(args);
-//     },
-//     error: (...args) => {
-//         console.error(args);
-//     }
-// }
+const log = require('./electron-log.mjs');
 
 const packageJson = require('../../package.json');
 const LsysParametric = require('../LsysParametric.mjs');
@@ -37,9 +22,6 @@ module.exports = class GUI {
         Object.keys(options).forEach(key => {
             this[key] = options[key];
         });
-
-        log.transports.file.level = this.logLevel || 'info';
-        log.transports.console.level = this.logLevel || 'info';
 
         this.win = electron.remote.BrowserWindow.getFocusedWindow();
     }
