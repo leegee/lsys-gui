@@ -19,7 +19,7 @@ module.exports = class GUI {
         duration: 48,
         scale: 'pentatonic',
         initialNoteDecimal: 58,
-        canvasWidth: 600, 
+        canvasWidth: 600,
         canvasHeight: 400,
         angle: 30,
         xoffset: 0,
