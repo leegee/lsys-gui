@@ -1,7 +1,7 @@
 module.exports = [
     {
         title: 'Weed',
-        totalGenerations: 5,
+        totalGenerations: 1, // 5
         variables: '',
         start: 'X',
         initY: 400,

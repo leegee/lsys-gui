@@ -2,12 +2,13 @@ const url = require('url');
 const path = require('path');
 const fs = require("fs");
 const os = require('os');
+const { fork } = require('child_process');
 const electron = require('electron');
-const log = require('./electron-log.mjs');
 
-const packageJson = require('../../package.json');
 const LsysParametric = require('../LsysParametric.mjs');
+const log = require('./electron-log.mjs');
 const Presets = require('./presets.mjs');
+const packageJson = require('../../package.json');
 
 module.exports = class GUI {
     logFilePath = path.resolve(
@@ -16,9 +17,32 @@ module.exports = class GUI {
     );
 
     currentViewName = 'viewMain';
-    settings = [];
+    settings = {
+        // mergeDuplicates: 1,
+        duration: 48,
+        scale: 'pentatonic',
+        initialNoteDecimal: 58,
+        canvasWidth: 2000,
+        canvasHeight: 800,
+        angle: 30,
+        xoffset: 0,
+        yoffset: 0,
+        turtleStepX: 10,
+        turtleStepY: 10,
+        lineWidth: 10,
+        initX: null,
+        initY: null,
+        canvasBackgroundColour: '#eeeeee',
+        colours: [
+            "rgba(130,  90, 70, 0.8)",
+            "rgba(33, 180, 24, 0.6)",
+            "rgba(50, 210, 50, 0.5)",
+            "rgba(70, 255, 70, 0.4)"
+        ]
+    };
 
     constructor(options) {
+        log.debug('Enter new GUI');
         Object.keys(options).forEach(key => {
             this[key] = options[key];
         });
@@ -41,6 +65,8 @@ module.exports = class GUI {
         this.createListeners();
         this.loadPreset();
         this.view(this.currentViewName);
+
+        this.actionGenerate();
     }
 
     createListeners() {
@@ -90,6 +116,7 @@ module.exports = class GUI {
     }
 
     view(viewName) {
+        log.debug('Switch view %s to %s', this.currentViewName, viewName)
         try {
             log.silly('Hide:', this.currentViewName);
             if (this.currentViewName) {
@@ -138,16 +165,10 @@ module.exports = class GUI {
                             }
                         })
                     },
+
+                    { label: '&Preferences', click: () => this.view('viewSettings') },
                     { role: 'separator' },
                     { role: 'quit' }
-                ]
-            },
-
-            {
-                label: '&Settings',
-                submenu: [
-                    { role: 'toggledevtools' },
-                    { label: 'Settings', click: () => this.view('settings') }
                 ]
             },
 
@@ -156,7 +177,6 @@ module.exports = class GUI {
             {
                 label: '&Help',
                 submenu: [
-                    { role: 'toggledevtools' },
                     {
                         label: 'Show &Log',
                         click: () => electron.shell.showItemInFolder(this.logFilePath)
@@ -173,40 +193,84 @@ module.exports = class GUI {
         electron.remote.Menu.setApplicationMenu(menu);
     }
 
+    service(cmd, args) {
+        this._service = fork(
+            path.join(__dirname, 'service'),
+            [],
+            { stdio: ['inherit', 'inherit', 'inherit', 'ipc'] }
+        );
+
+        this._service.on('close', () => log.verbose('child close'));
+        this._service.on('exit', () => log.verbose('child exit'));
+        this._service.on('error', (err) => {
+            log.verbose('child error', err);
+            throw err;
+        });
+
+        this._service.on('message', msg => {
+            switch (msg.cmd) {
+                case 'error':
+                    log.error(msg);
+                    throw new Error((msg.title || 'NO TITLE' + ' ' + msg.name || 'NO_ERROR_NAME') + ' ' + (msg.message || 'NO_ERROR_MESSAGE'));
+                case 'call':
+                    this[msg.methodName](msg);
+                    break;
+                default:
+                    log.error('Unknown command: ', msg);
+            }
+        });
+
+        this._service.send({ cmd, ...args });
+    }
+
+    actionViewMain() {
+        this.view('viewMain');
+    }
+
     actionGenerate() {
         log.debug('Enter actionGenerate');
-        const oldActionGenerate = this.elements.actionGenerate.value;
+        this._oldActionGenerate = this.elements.actionGenerate.value;
         this.elements.actionGenerate.value = 'Generating...';
         this.elements.actionGenerate.disabled = true;
         this.elements.actionCreateMidi.disabled = true;
 
-        const canvas = this.window.document.createElement('canvas');
-        this.elements.canvases.insertBefore(canvas, this.elements.canvases.firstChild);
+        this.canvas = this.window.document.createElement('canvas');
+        this.ctx = this.canvas.getContext("2d");
+        this.ctx.translate(this.canvas.width / 2, this.canvas.height / 2); // Translate context to center of canvas:
 
-        log.info('Call Lsys with', this.settings);
+        this.setCanvas();
 
-        const lsys = new LsysParametric({
-            ... this.settings,
-            canvas,
-            logger: log,
-        }, canvas);
-        lsys.generate(
-            this.settings.totalGenerations
-        );
+        this.elements.canvases.insertBefore(this.canvas, this.elements.canvases.firstChild);
 
+        this.x = this.maxX = this.minX = Number(this.settings.initX);
+        this.y = this.maxY = this.minY = Number(this.settings.initY);
+
+        this.lsysSetColour(0);
+
+        log.silly('Call Lsys with', this.settings);
+        this.service('start', this.settings);
+    }
+
+    lsysDone({ content }) {
+        log.debug('Enter lsysDone with %d byes of content', content.length);
         // if (this.elTimeDisplay) {
         //     this.elTimeDisplay.innerText = 'Generated in ' + (new Date().getTime() - (elTimeDisplay.get('text'))) + ' ms';
         // }
 
-        canvas.scrollIntoView({
+        this.canvas.scrollIntoView({
             behavior: "smooth",
             block: "end"
         });
 
-        this.window.document.getElementById('contentDisplay').value = lsys.content;
-        this.elements.actionGenerate.value = oldActionGenerate;
+        this.window.document.getElementById('contentDisplay').value = content;
+        this.elements.actionGenerate.value = this._oldActionGenerate;
         this.elements.actionGenerate.disabled = false;
         this.elements.actionCreateMidi.disabled = false;
+
+        this.lsysRender(content);
+        this.lsysResize(content);
+
+        this.lsysFinalise();
     }
 
     actionGenerateMidi() {
@@ -214,9 +278,9 @@ module.exports = class GUI {
         this.createMidi.value = 'Hang on...';
         this.createMidi.disabled = true;
         fetch('/cgi-bin/fractal_plant_chords.cgi', {
-            duration: this.window.document.getElementById('duration').value,
-            angle: this.window.document.getElementById('angle').value,
-            scale: this.window.document.getElementById('scale').value
+            duration: this.settings.duration,
+            angle: this.settings.angle,
+            scale: this.settings.scale
         }).then(() => {
             this.playSound("/cgi-output/cgi.midi");
             this.createMidi.value = oldValue;
@@ -228,7 +292,7 @@ module.exports = class GUI {
     }
 
     loadPreset(idx = 0) {
-        log.debug('Load preset ', idx, Presets[idx]);
+        log.info('Load preset ', idx, Presets[idx]);
 
         if (!Presets[idx].totalGenerations) {
             Presets[idx].totalGenerations = 1;
@@ -252,5 +316,150 @@ module.exports = class GUI {
         });
 
         this.window.document.getElementById('title').innerText = Presets[idx].title;
+    }
+
+    lsysResize(content) {
+        log.verbose('Resize Min: %d , %d\nMax: %d , %d', this.minX, this.minY, this.maxX, this.maxY);
+        const wi = (this.minX < 0) ?
+            Math.abs(this.minX) + Math.abs(this.maxX) : this.maxX - this.minX;
+        const hi = (this.minY < 0) ?
+            Math.abs(this.minY) + Math.abs(this.maxY) : this.maxY - this.minY;
+        if (this.maxY <= 0) {
+            throw new RangeError('maxY out of bounds');
+        }
+        if (this.maxX <= 0) {
+            throw new RangeError('maxX out of bounds');
+        }
+
+        const sx = this.canvas.width / wi;
+        const sy = this.canvas.height / hi;
+
+        if (sx !== 0 && sy !== 0) {
+            this.setCanvas();
+
+            this.ctx.scale(sx, sy);
+
+            this.x = Number(this.settings.initX) || 0; // this.settings.turtleStepX|| 0;
+            this.y = Number(this.settings.initY) || this.canvas.height / 2;
+            this.y -= this.minY;
+
+            this.lsysRender(content);
+            log.verbose('Resized via scale %d, %d', sx, sy);
+        }
+
+        log.verbose('Leave resize');
+    };
+
+    lsysRender(content) {
+        let dir = 0;
+        const states = [];
+
+        this.stepped = 0;
+
+        // PRODUCTION RULES:
+        for (let i = 0; i < content.length; i++) {
+            let draw = true;
+            this.penUp = false;
+            const atom = content.charAt(i).toLowerCase();
+
+            log.silly('Do content atom %d, (%s)', i, atom);
+
+            switch (atom) {
+                case 'f': // Forwards
+                    break;
+                case 'c': // Set colour
+                    const colourCode = content.charAt(++i);
+                    log.silly('Got colour code (%s)', colourCode);
+                    this.lsysSetColour(
+                        parseInt(colourCode, 10) % this.settings.colours
+                    );
+                    draw = false;
+                    break;
+                case '+': // Right
+                    dir += this.settings.angle;
+                    break;
+                case '-': // Left
+                    dir -= this.settings.angle;
+                    break;
+                case '[': // Start a branch
+                    states.push([dir, this.x, this.y, this.colour, this.stepped]);
+                    draw = false;
+                    break;
+                // End a branch
+                case ']':
+                    const state = states.pop();
+                    dir = state[0];
+                    this.x = state[1];
+                    this.y = state[2];
+                    this.colour = state[3];
+                    this.stepped = state[4];
+                    draw = true;
+                    break;
+            };
+
+            if (draw) {
+                this.lsysTurtleGraph(dir);
+                this.stepped++;
+            }
+        }
+    }
+
+    lsysTurtleGraph(dir) {
+        log.debug('Move dir (%s) from x (%s) y (%s)', dir, this.x, this.y);
+
+        this.ctx.beginPath();
+        if (this.settings.generationsScaleLines > 0) {
+            this.ctx.lineWidth = this.settings.lineWidth;
+        }
+        else if (this.settings.lineWidth) {
+            this.ctx.lineWidth = this.settings.lineWidth;
+        }
+
+        this.ctx.moveTo(this.x, this.y);
+        this.x += (LsysParametric.dcos(dir) * this.settings.turtleStepX);
+        this.y += (LsysParametric.dsin(dir) * this.settings.turtleStepY);
+
+        this.x += this.settings.xoffset;
+        this.y += this.settings.yoffset;
+
+        this.ctx.lineTo(this.x, this.y);
+        this.ctx.closePath();
+
+        if (!this.penUp) {
+            log.debug('DRAW in colour ', this.ctx.strokeStyle);
+            this.ctx.stroke();
+        }
+        if (this.x > this.maxX) this.maxX = this.x;
+        if (this.y > this.maxY) this.maxY = this.y;
+        if (this.x < this.minX) this.minX = this.x;
+        if (this.y < this.minY) this.minY = this.y;
+
+        log.debug('Moved to x (%s) y (%s)', this.x, this.y);
+    };
+
+    setWidth(px) {
+        this.ctx.lineWidth = px;
+    };
+
+    lsysFinalise() {
+        log.verbose('Enter lsysFinalise');
+        if (this.settings.finally && typeof this.settings.finally === 'function') {
+            log.debug('Call finally');
+            this.settings.finally.call(this);
+        }
+        log.verbose('Leave lsysFinalise');
+    };
+
+    lsysSetColour(colourIndex) {
+        this.colour = this.settings.colours[colourIndex];
+        log.debug('Set colour to index (%d): ', colourIndex, this.colour);
+        this.ctx.strokeStyle = this.colour;
+    }
+
+    setCanvas() {
+        this.canvas.width = this.settings.canvasWidth;
+        this.canvas.height = this.settings.canvasHeight;
+        this.ctx.fillStyle = this.settings.canvasBackgroundColour;
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
     }
 }

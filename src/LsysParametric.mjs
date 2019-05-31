@@ -30,10 +30,16 @@ rule p3
 const RAD = Math.PI / 180.0;
 
 module.exports = class LsysParametric {
+	static dsin(radians) {
+		return Math.sin(radians * RAD)
+	};
+
+	static dcos(radians) {
+		return Math.cos(radians * RAD)
+	};
+
 	interpolateVarsRe = /(\$\w+)/g;
 	str2reRe = /(\w+)\(([^\)]+)\)/g;
-	xoffset = 0;
-	yoffset = 0;
 	generation = 0;
 	totalGenerations = null;
 	variables = null;
@@ -41,62 +47,32 @@ module.exports = class LsysParametric {
 	options = {
 		start: 'F',
 		variables: '',
-		rules: null,
-		mergeDuplicates: 1,
-		duration: 48,
-		scale: 'pentatonic',
-		initialNoteDecimal: 58,
-		canvasWidth: 2000,
-		canvasHeight: 800,
-		angle: 30,
-		turtleStepX: 10,
-		turtleStepY: 10,
-		initX: null,
-		initY: null,
-		lineWidth: 1,
-		timeScaleLines: 1,
-		clearCanvas: true,
-		colours: [
-			"rgba(130,  90, 70, 0.8)",
-			"rgba(33, 180, 24, 0.6)",
-			"rgba(50, 210, 50, 0.5)",
-			"rgba(70, 255, 70, 0.4)"
-		]
+		rules: null
 	};
 
 	constructor(options) {
-		this.setOptions(options);
 
-		this.initialize();
-
-		this.x = this.maxX = this.minX = (this.options.initX || 0);
-		this.y = this.maxY = this.minY = (this.options.initY || 0);
-		this.content = '';
-
-		this.castRules();
-		this.castVariables();
-
-		this.options.logger.info('Variables: %O\nRules:\n%O', this.variables, this.options.rules);
-	};
-
-	initialize(options = {}) {
-		this.colour = this.options.colours[0];
-		if (!this.options.canvas) {
-			throw new Error('No options.canvas!');
+		if (!options.logger) {
+			options.logger = { info: () => { } };
+			options.logger.silly = options.logger.verbose = options.logger.debug = options.logger.warn = options.logger.info;
 		}
-		this.ctx = this.options.canvas.getContext("2d");
-		if (!this.ctx) {
-			throw new Error('No ctx from options.canvas!');
-		}
-		// Translate context to center of canvas:
-		this.ctx.translate(this.options.canvas.width / 2, this.options.canvas.height / 2);
-		// Flip context vertically
+
+		this._setOptions(options);
+
+		// For example, to flip context vertically for specific L-systems:
 		if (this.options.initially && typeof this.options.initially === 'function') {
 			this.options.initially.call(this);
 		}
+
+		this.content = '';
+
+		this._castRules();
+		this._castVariables();
+
+		this.options.logger.info('Made new LsysParametric.\nVariables: %O\nRules:\n%O', this.variables, this.options.rules);
 	};
 
-	setOptions(options = {}) {
+	_setOptions(options = {}) {
 		if (typeof options !== 'object') {
 			throw new TypeError('options was not an object, %O', options);
 		}
@@ -117,12 +93,12 @@ module.exports = class LsysParametric {
 			}
 			if (options[i] || options[i] === 0) {
 				this.options[i] = options[i];
-				this.options.logger.debug('SET OPTIONS "%s" to "%s"', i, options[i]);
+				this.options.logger.silly('SET OPTIONS "%s" to "%s"', i, options[i]);
 			}
 		});
 	};
 
-	castVariables(str) {
+	_castVariables(str) {
 		str = str || this.options.variables;
 		if (!str) return;
 		let rv = {};
@@ -144,10 +120,12 @@ module.exports = class LsysParametric {
 		return rv;
 	};
 
-	/* Creates a strucure as follows:
-		[ [to_match, condition, substitution ], ...]
-		*/
-	castRules(strRules) {
+	/**
+	 * Creates a strucure as follows:
+	 * 
+	 * 	[ [to_match, condition, substitution ], ...]
+	 */
+	_castRules(strRules) {
 		strRules = strRules || this.options.rules;
 
 		if (!strRules) {
@@ -182,39 +160,31 @@ module.exports = class LsysParametric {
 		return rv;
 	};
 
-	dsin(radians) {
-		return Math.sin(radians * RAD)
-	};
-
-	dcos(radians) {
-		return Math.cos(radians * RAD)
-	};
-
 	generate(generations = 0) {
+		this.options.logger.silly('Enter generate with ', generations);
 		if (!generations) {
 			throw new TypeError('Called .generate() without an argument');
 		}
 		this.totalGenerations = generations;
-		this.options.logger.debug('Enter generate to create %d generations', this.totalGenerations);
+		this.options.logger.info('Generate reate %d generations', this.totalGenerations);
 
 		this.content = this.options.start;
-		this.content = this.interploateVars(this.content);
+		this.content = this._interploateVars(this.content);
 
 		for (
 			this.generation = 1; this.generation <= this.totalGenerations; this.generation++
 		) {
-			this.applyRules();
+			this._applyRules();
 		}
 
-		this.render();
+		// this.render();
+		// this.postRender();
 
-		this.finalise();
-
-		this.options.logger.debug('Leave generate');
+		this.options.logger.verbose('Leave generate');
 		return this;
 	};
 
-	interploateVars(str) {
+	_interploateVars(str) {
 		const rv = str.replace(
 			this.interpolateVarsRe,
 			(match) => {
@@ -222,11 +192,11 @@ module.exports = class LsysParametric {
 					this.variables[match] : match;
 			}
 		);
-		this.options.logger.debug('Interpolate vars: %s ... %s', str, rv);
+		this.options.logger.verbose('Interpolate vars: %s ... %s', str, rv);
 		return rv;
 	};
 
-	string2reAndArgNames(str) {
+	_string2reAndArgNames(str) {
 		let argNames = [];
 
 		const rv = str.replace(
@@ -246,8 +216,8 @@ module.exports = class LsysParametric {
 		];
 	};
 
-	applyRules() {
-		this.options.logger.debug('Enter applyRules for generation ' + this.generation);
+	_applyRules() {
+		this.options.logger.silly('Enter applyRules for generation ' + this.generation);
 		let finalContent = '';
 
 		// Itterate over atoms within the content?
@@ -267,13 +237,13 @@ module.exports = class LsysParametric {
 				ruleNumber++;
 
 				if (ruleSuccessfullyApplied) {
-					this.options.logger.debug('Skip rule ' + ruleNumber + ' as have made substituion');
+					this.options.logger.silly('Skip rule ' + ruleNumber + ' as have made substituion');
 					return;
 				}
 
 				// Re-write the rule to replace variables with literals, where possible:
-				const [rule2findRe, ruleArgNames] = this.string2reAndArgNames(rule[0]);
-				this.options.logger.debug('Rule ' + ruleNumber + ' says find ' + rule[0] + ' in content of ' + atom + ' using ', rule2findRe);
+				const [rule2findRe, ruleArgNames] = this._string2reAndArgNames(rule[0]);
+				this.options.logger.silly('Rule ' + ruleNumber + ' says find ' + rule[0] + ' in content of ' + atom + ' using ', rule2findRe);
 
 				// Find the rule pattern (left-hand side of condition)
 				// and replace if condition is met
@@ -290,8 +260,8 @@ module.exports = class LsysParametric {
 						});
 
 						// Get the rule code:
-						const ruleConditionJs = this.interploateVars(rule[1]);
-						this.options.logger.debug('Rule ' + ruleNumber + ' condition: ' + ruleConditionJs);
+						const ruleConditionJs = this._interploateVars(rule[1]);
+						this.options.logger.silly('Rule ' + ruleNumber + ' condition: ' + ruleConditionJs);
 
 						// Decide if the substitution take place
 						let ruleConditionMet = ruleConditionJs.length === 0; // || eval ruleConditionMet
@@ -306,13 +276,13 @@ module.exports = class LsysParametric {
 
 						// No substitutions
 						if (!ruleConditionMet) {
-							this.options.logger.debug('Condition not met');
+							this.options.logger.silly('Condition not met');
 							return original;
 						}
 
 						ruleSuccessfullyApplied = true;
-						const substituted = this.interploateVars(rule[2]);
-						this.options.logger.debug('Condition met:------> substituted result = ' + rule[2] + '  RV== ' + substituted);
+						const substituted = this._interploateVars(rule[2]);
+						this.options.logger.silly('Condition met:------> substituted result = ' + rule[2] + '  RV== ' + substituted);
 
 						return substituted;
 					} // end of replacement function
@@ -322,7 +292,7 @@ module.exports = class LsysParametric {
 				// do not write this into the string:
 				if (ruleSuccessfullyApplied) {
 					atom = atomAfterRuleApplied;
-					this.options.logger.debug('After fulfilled rule ' + ruleNumber + ' was applied, atom is: ' + atom);
+					this.options.logger.silly('After fulfilled rule ' + ruleNumber + ' was applied, atom is: ' + atom);
 					return;
 				}
 
@@ -333,142 +303,11 @@ module.exports = class LsysParametric {
 
 		this.content = finalContent;
 
-		this.options.logger.debug('After all rules were applied, content is: ', this.content);
-		this.options.logger.debug(
+		this.options.logger.silly('After all rules were applied, content is: ', this.content);
+		this.options.logger.verbose(
 			'# FINAL for generation ' + this.generation + '/' + this.totalGenerations +
 			' ############################ Content: ' + this.content
 		);
 	};
 
-	render() {
-		let dir = 0;
-		const states = [];
-
-		this.stepped = 0;
-
-		// PRODUCTION RULES:
-		for (let i = 0; i < this.content.length; i++) {
-			let draw = true;
-			this.penUp = false;
-			
-			// this.options.logger.debug('Do '+i);
-			
-			switch (this.content.charAt(i).toLowerCase()) {
-				case 'f': // Forwards
-					break;
-				case 'c': // Set colour
-					this.setColour(parseInt(this.content.charAt(++i), 10));
-					draw = false;
-					break;
-				case '+': // Right
-					dir += this.options.angle;
-					break;
-				case '-': // Left
-					dir -= this.options.angle;
-					break;
-				case '[': // Start a branch
-					states.push([dir, this.x, this.y, this.colour, this.stepped]);
-					draw = false;
-					break;
-				// End a branch
-				case ']':
-					const state = states.pop();
-					dir = state[0];
-					this.x = state[1];
-					this.y = state[2];
-					this.colour = state[3];
-					this.stepped = state[4];
-					draw = true;
-					break;
-			};
-
-			if (draw) {
-				this.turtleGraph(dir);
-				this.stepped++;
-			}
-		}
-	};
-
-	finalise() {
-		this.options.logger.debug('Enter finalise');
-		if (this.options.finally && typeof this.options.finally === 'function') {
-			this.options.logger.debug('Call finally');
-			this.options.finally.call(this);
-		}
-		this.resize();
-		this.options.logger.debug('Leave finalise');
-	};
-
-	turtleGraph(dir) {
-		// this.options.logger.debug('Move '+dir +' from '+this.x+','+this.y);
-
-		this.ctx.beginPath();
-		if (this.options.timeScaleLines > 0) {
-			this.ctx.lineWidth = this.options.lineWidth;
-		}
-		else if (this.options.lineWidth) {
-			this.ctx.lineWidth = this.options.lineWidth;
-		}
-
-		this.ctx.moveTo(this.x, this.y);
-		this.x += (this.dcos(dir) * this.options.turtleStepX);
-		this.y += (this.dsin(dir) * this.options.turtleStepY);
-
-		this.x += this.xoffset;
-		this.y += this.yoffset;
-
-		this.ctx.lineTo(this.x, this.y);
-		this.ctx.closePath();
-
-		if (!this.penUp) this.ctx.stroke();
-		if (this.x > this.maxX) this.maxX = this.x;
-		if (this.y > this.maxY) this.maxY = this.y;
-		if (this.x < this.minX) this.minX = this.x;
-		if (this.y < this.minY) this.minY = this.y;
-
-		// this.options.logger.debug('...to '+this.x+','+this.y);
-	};
-
-	setWidth(px) {
-		this.ctx.lineWidth = px;
-	};
-
-	setColour(index) {
-		this.colour = this.options.colours[index];
-		this.ctx.strokeStyle = this.colour;
-	};
-
-	resize() {
-		this.options.logger.debug('Resize Min: %d , %d\nMax: %d , %d', this.minX, this.minY, this.maxX, this.maxY);
-		const wi = (this.minX < 0) ?
-			Math.abs(this.minX) + Math.abs(this.maxX) : this.maxX - this.minX;
-		const hi = (this.minY < 0) ?
-			Math.abs(this.minY) + Math.abs(this.maxY) : this.maxY - this.minY;
-		if (this.maxY <= 0) {
-			throw new RangeError('maxY out of bounds');
-		}
-		if (this.maxX <= 0) {
-			throw new RangeError('maxX out of bounds');
-		}
-
-		const sx = this.options.canvas.width / wi;
-		const sy = this.options.canvas.height / hi;
-
-		if (sx !== 0 && sy !== 0) {
-
-			if (this.options.clearCanvas) {
-				this.options.canvas.width = this.options.canvas.width;
-			}
-
-			this.ctx.scale(sx, sy);
-
-			this.x = this.options.initX || 0; // this.options.turtleStepX|| 0;
-			this.y = this.options.initY || this.options.canvasHeight / 2;
-			this.y -= this.minY;
-
-			this.render();
-			this.options.logger.debug('Resized via scale %d, %d', sx, sy);
-		}
-		this.options.logger.debug('Leave resize');
-	};
 }

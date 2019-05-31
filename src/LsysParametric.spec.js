@@ -1,5 +1,14 @@
-/*	t/parametric.js - qUnit test - v0.2
+"use strict";
 
+const expect = require('chai').expect;
+
+const Lsys = require("./LsysParametric.mjs");
+
+// const jsdom = require("jsdom");
+// const { JSDOM } = jsdom;
+// const window = new JSDOM(``).window;
+
+/*	
 	Documentation via docco, hence single-line comments.
 	1 tab == 4 spaces
 */
@@ -37,12 +46,6 @@
 //	 !(0.5)F(2-,1)F(2,-1)F(1,1)F(2,-1)F(1,1)
 //
 
-const expect = require('chai').expect;
-
-"use strict";
-const Lsys = require("../src/LsysParametric");
-
-
 // The content expected for the generation:
 const expectContent = [
 	'!(0.5)F(1,1)',
@@ -55,7 +58,6 @@ const expectContent = [
 // These options are fixed for every test:
 const defaultOptions = {
 	// An element into which the Lsys canvas can be inserted:
-	el: document.newElement('div'),
 	variables: "#define $W	  0.5\n" + "#define $AS  2\n" + "#define $BS  1\n" + "#define $R   1\n" + "#define $L	 -1",
 	rules: "F($s,$o) : $s == $AS && $o == $R -> F($AS,$L)F($BS,$R)\n" + "F($s,$o) : $s == $AS && $o == $L -> F($BS,$L)F($AS,$R)\n" + "F($s,$o) : $s == $BS	           -> F($AS,$o)\n",
 	// Axiom
@@ -64,15 +66,14 @@ const defaultOptions = {
 
 describe('Constructor', () => {
 	it('with old args', () => {
-		var oldOptions = Object.clone(defaultOptions);
+		var oldOptions = Object.assign({}, defaultOptions);
 		delete oldOptions.variables;
 		var lsys = new Lsys(oldOptions);
-		equal(typeof lsys, "object", "Construted Lsys object");
+		expect(lsys).to.be.instanceOf(Lsys);
 	});
 
 	it('with new parametric args', () => {
 		var lsys = new Lsys(defaultOptions);
-		equal(typeof lsys, "object", "Construted Lsys object");
 
 		// NB MooTools, not native:
 		equal(typeOf(lsys.options.rules), 'array', 'Rules array');
@@ -97,7 +98,7 @@ describe('Constructor', () => {
 test('Interploation', function () {
 	equal(
 		new Lsys(defaultOptions)
-			.interploateVars('$AS'),
+			._interploateVars('$AS'),
 		2,
 		'Interpolate variable'
 	);
@@ -105,7 +106,7 @@ test('Interploation', function () {
 
 test('string to re and arg name', function () {
 	var rv = new Lsys(defaultOptions)
-		.string2reAndArgNames('F(s,o)');
+		._string2reAndArgNames('F(s,o)');
 	equal(typeOf(rv), 'array', 'rv type');
 	equal(rv.length, 2, 'rv length');
 	equal(typeOf(rv[0]), 'regexp', 'rv regexp');
@@ -150,9 +151,8 @@ test('Variable parsing', function () {
 });
 
 test('Math routines', function () {
-	var lsys = new Lsys(defaultOptions);
-	equal(lsys.dsin(1), 0.01745240643728351, 'sin');
-	equal(lsys.dcos(1), 0.9998476951563913, 'sin');
+	equal(LsysParametric.dsin(1), 0.01745240643728351, 'sin');
+	equal(LsysParametric.dcos(1), 0.9998476951563913, 'sin');
 });
 
 // ## Generate content

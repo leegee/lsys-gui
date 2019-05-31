@@ -134,12 +134,12 @@ describe('Constructor', () => {
 
 	it('Interploates', function () {
 		expect(
-			new LsysParametric(defaultOptions).interploateVars('$AS')
+			new LsysParametric(defaultOptions)._interploateVars('$AS')
 		).to.equal('2', 'Interpolate variable');
 	});
 
 	it('processes string to re and arg name', function () {
-		var rv = new LsysParametric(defaultOptions).string2reAndArgNames('F(s,o)');
+		var rv = new LsysParametric(defaultOptions)._string2reAndArgNames('F(s,o)');
 		expect(rv).to.be.an('array', 'rv type');
 		expect(rv).to.have.length(2, 'rv length');
 		expect(rv[0]).to.be.a('regexp', 'rv regexp');
@@ -186,13 +186,9 @@ describe('Constructor', () => {
 });
 
 describe('Math routines', () => {
-	let lsys;
-	beforeEach(() => {
-		lsys = new LsysParametric(defaultOptions);
-	});
 	it('dsin', () => {
-		expect(lsys.dsin(1)).to.equal(0.01745240643728351, 'sin');
-		expect(lsys.dcos(1)).to.equal(0.9998476951563913, 'sin');
+		expect(LsysParametric.dsin(1)).to.equal(0.01745240643728351, 'sin');
+		expect(LsysParametric.dcos(1)).to.equal(0.9998476951563913, 'sin');
 	});
 });
 
