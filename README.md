@@ -6,7 +6,7 @@
     yarn start 
     # yarn dev
 
-![Screenshot](/readme.png?raw=true "Screenshot")
+![Screenshot](readme.png?raw=true "Screenshot")
 
 ## Sound
 
