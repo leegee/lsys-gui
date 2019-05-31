@@ -3,7 +3,8 @@
 	"version": "1.0.1",
 	"description": "L-system Tools For Sound",
 	"scripts": {
-		"start": "cross-env LOG_LEVEL=debug NODE_OPTIONS=experimental-modules electron src/gui/index.js",
+		"start": "cross-env LOG_LEVEL=warn electron src/gui/index.js",
+		"dev": "cross-env LOG_LEVEL=silly DEV=true electron src/gui/index.js",
 		"test": "mocha -r jsdom-global/register  src/**/*.spec.js"
 	},
 	"keywords": [

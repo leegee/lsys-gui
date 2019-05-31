@@ -20,6 +20,7 @@ html, body {
 
 body {
 	padding: 0.4em;
+	font-size: 10pt;
 }
 
 .grid {
@@ -41,11 +42,6 @@ body {
 
 .col:nth-of-type(2) {
 	margin-left: 1%;
-}
-
-canvas {
-	border: 1px solid gray;
-	width: 100%;
 }
 
 fieldset {
@@ -70,9 +66,9 @@ legend {
 
 label {
 	vertical-align: middle;
-	margin-right: .5em;
 	line-height: 1.6;
 	width: 100%;
+	font-size: 80%;
 }
 
 input[type='range'] {
@@ -113,3 +109,13 @@ textarea {
 	border-top: 2px solid gray;
 	padding-top: 1em;
 }
+
+#canvases {
+	margin-top: 1em;
+	text-align: center;
+	width: 100%;
+}
+
+canvas {
+}
+

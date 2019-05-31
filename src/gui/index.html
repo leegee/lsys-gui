@@ -54,13 +54,7 @@
                             </p>
                         </fieldset>
                     </div><!-- ends .col -->
-
                     <div class='col'>
-                        <fieldset>
-                            <legend>Presets</legend>
-                            <ul id='presets'></ul>
-                        </fieldset>
-
                         <fieldset>
                             <legend>MIDI</legend>
                             <p>
@@ -111,47 +105,70 @@
 
     <section id='viewSettings'>
         <form>
-            <p>
-                <label for='canvasWidth'>Canvas width</label>
-                <input type='range' id='canvasWidth' data-scale='0.5' min=100 max=2000 aria-valuemin='100'
-                    aria-valuemax='2000'>
-                <label for='canvasHeight'>Canvas height</label>
-                <input type='range' id='canvasHeight' data-scale='0.5' min=100 max=2000 aria-valuemin='100'
-                    aria-valuemax='2000'>
-            </p>
-
-            <p>
-                <label for='turtleStepX'>Turtle Step X</label>
-                <input type='range' id='turtleStepX' data-monitor='turtleStepX' min=1 max=50 aria-valuemin='1'
-                    aria-valuemax='50'>
-
-                <label for='turtleStepY'>Turtle Step Y</label>
-                <input type='range' id='turtleStepY' min=1 max=50 aria-valuemin='1' aria-valuemax='50'>
-                </span>
-            </p>
-
-            <p>
-                <label for='initX'>Init X</label>
-                <input type='text' id='initX' value='' />
-                <label for='initY'>Init Y</label>
-                <input type='text' id='initY' value='' />
-            </p>
-            <p>
-                <label for='lineWidth'>Line width</label>
-                <input type='range' id='lineWidth' min=1 max=20 aria-valuemax='20' aria-valuemin='1'>
-
-                <label for='generationsScaleLines'>Scale lines with age?</label>
-                <input type='checkbox' checked='true' name='generationsScaleLines' id='generationsScaleLines' />
-            </p>
-
-            <p>
-                <label for='canvasBackgroundColour'>Canvas Background
-                    <input type='color' id='canvasBackgroundColour'>
+            <fieldset>
+                <legend>Canvas</legend>
+                <label>Width
+                    <input type='range' id='canvasWidth' data-scale='0.5' min=100 max=2000>
                 </label>
-            </p>
+                <label>Weight
+                    <input type='range' id='canvasHeight' data-scale='0.5' min=100 max=2000>
+                </label>
+                <label>Canvas Background <input type='color' id='canvasBackgroundColour'> </label>
+            </fieldset>
+
+            <fieldset>
+                <p>
+                    <label>Turtle Step X
+                        <input type='range' id='turtleStepX' data-monitor='turtleStepX' min=1 max=50>
+                    </label>
+
+                    <label>Turtle Step Y
+                        <input type='range' id='turtleStepY' min=1 max=50 aria-valuemin='1'>
+                    </label>
+                </p>
+
+                <p>
+                    <label for='initX'>Init X</label>
+                    <input type='text' id='initX' value=''>
+                    <label for='initY'>Init Y</label>
+                    <input type='text' id='initY' value=''>
+                </p>
+
+                <p>
+                    <label>Line width
+                        <input type='range' id='lineWidth' min=1 max=20>
+                    </label>
+
+                    <label>Scale lines with age?
+                        <input type='checkbox' checked='true' name='generationsScaleLines' id='generationsScaleLines'>
+                    </label>
+                </p>
+            </fieldset>
+
+            <fieldset>
+                <legend>L-System Colours</legend>
+                <p>
+                    <input type='color' id='colours-0'>
+                    <input type='range' id='opacities-0' min=0 max=1 step=0.02>
+                </p>
+                <p>
+                    <input type='color' id='colours-1'>
+                    <input type='range' id='opacities-1' min=0 max=1 step=0.02>
+                </p>
+                <p>
+                    <input type='color' id='colours-2'>
+                    <input type='range' id='opacities-2' min=0 max=1 step=0.02>
+                </p>
+                <p>
+                    <input type='color' id='colours-3'>
+                    <input type='range' id='opacities-3' min=0 max=1 step=0.02>
+                </p>
+            </fieldset>
 
             <hr />
-            <button id='actionViewMain'>Back</button>
+            <p>
+                <input type='button' id='actionViewMain' value='Back'>
+            </p>
         </form>
     </section>
 
