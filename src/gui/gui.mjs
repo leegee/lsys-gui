@@ -19,7 +19,7 @@ module.exports = class GUI {
         duration: 48,
         scale: 'pentatonic',
         initialNoteDecimal: 58,
-        canvasWidth: 600,
+        canvasWidth: 600, 
         canvasHeight: 400,
         angle: 30,
         xoffset: 0,
@@ -47,6 +47,10 @@ module.exports = class GUI {
             this[key] = options[key];
         });
 
+        const { width, height } = electron.screen.getPrimaryDisplay().workAreaSize;
+        this.settings.canvasWidth = width;
+        this.settings.canvasHeight = height;
+
         this.win = electron.remote.BrowserWindow.getFocusedWindow();
     }
 
@@ -62,6 +66,7 @@ module.exports = class GUI {
             return collected;
         }, {});
 
+        // Settings arrays :(
         this.settings.colours.forEach((value, index) => {
             let el = this.window.document.getElementById('colours-' + index);
             el.setAttribute('value', value);
@@ -71,10 +76,10 @@ module.exports = class GUI {
             el.value = this.settings.opacities[index];
         });
 
+        this.updateSettings();
         this.createListeners();
         this.loadPreset();
         this.view(this.currentViewName);
-
         this.actionGenerate();
     }
 
@@ -234,6 +239,25 @@ module.exports = class GUI {
         this._service.send({ cmd, ...args });
     }
 
+    updateSettings() {
+        Object.keys(this.settings).forEach(id => {
+            try {
+                log.verbose('Preset set "%s" to "%s"', id, this.settings[id]);
+                const el = this.window.document.getElementById(id);
+                if (el.nodeName === 'INPUT') {
+                    el.value = this.settings[id];
+                }
+                else {
+                    el.innerText = this.settings[id];
+                }
+                this.settingsChanged(el);
+            }
+            catch (e) {
+                log.error('Could not set ' + id + '.value: missing GUI element?\n', e);
+            }
+        });
+    }
+
     loadPreset(idx = 0) {
         log.info('Load preset ', idx, Presets[idx]);
 
@@ -242,23 +266,12 @@ module.exports = class GUI {
         }
 
         Object.keys(Presets[idx]).forEach(id => {
-            try {
-                log.verbose('Preset set "%s" to "%s"', id, Presets[idx][id]);
-                const el = this.window.document.getElementById(id);
-                if (el.nodeName === 'INPUT') {
-                    el.value = Presets[idx][id];
-                }
-                else {
-                    el.innerText = Presets[idx][id];
-                }
-                this.settingsChanged(el);
-            }
-            catch (e) {
-                log.error('Could not set ' + id + '.value: missing GUI element?\n', e);
-            }
+            this.settings[id] = Presets[idx][id]
         });
 
-        this.window.document.getElementById('title').innerText = Presets[idx].title;
+        this.updateSettings();
+
+        // this.window.document.getElementById('title').innerText = Presets[idx].title;
     }
 
     actionViewMain() {
@@ -273,7 +286,6 @@ module.exports = class GUI {
         this.elements.actionCreateMidi.disabled = true;
 
         this.canvas = this.window.document.createElement('canvas');
-        this.canvas.addEventListener('click', (e) => this.openElementInNewWindow(e.target));
         this.ctx = this.canvas.getContext("2d");
         this.ctx.translate(this.canvas.width / 2, this.canvas.height / 2); // Translate context to center of canvas:
 
@@ -312,28 +324,29 @@ module.exports = class GUI {
             this.playSound("/cgi-output/cgi.midi");
             this.createMidi.value = oldValue;
             this.createMidi.disabled = false;
-        }).catch(() => {
+        }).catch(e => {
             log.error(e);
             alert('Failure :(');
         });
     }
 
-    openElementInNewWindow(el) {
+    openElementInNewWindow(canvas) {
+        log.silly('Enter openElementInNewWindow');
         let win = new electron.remote.BrowserWindow({
             parent: this.win,
-            modal: true,
+            // modal: true,
             show: false,
             backgroundColor: '#000000',
-            width: this.appConfig.gui.modal.width,
-            height: this.appConfig.gui.modal.height
+            width: this.appConfig.gui.openInNewWindow.width,
+            height: this.appConfig.gui.openInNewWindow.height
         });
+        win.loadURL(canvas.toDataURL());
         win.setMenu(null);
-        win.loadURL(url.format({
-            protocol: 'file',
-            slashes: true,
-            pathname: path.join(__dirname, viewName + '.html')
-        }));
-        win.once('ready-to-show', () => win.show());
+        win.maximize();
+        win.once('ready-to-show', () => {
+            win.show();
+            log.silly('openElementInNewWindow is done');
+        });
     }
 
     lsysResize(content) {
@@ -511,5 +524,6 @@ module.exports = class GUI {
         this.lsysResize(content);
 
         this.lsysFinalise();
+        this.canvas.addEventListener('click', (e) => this.openElementInNewWindow(e.target));
     }
 }

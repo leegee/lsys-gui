@@ -1,19 +1,16 @@
-# commonjs-play-lsystems
+# Electron L-Sys
 
 ## Setup
 
     yarn
     yarn start 
+    # yarn dev
 
-## 2d
-
-Whilst 3d is just a wip experiment, 2d was solid, until I ported
-from MooTools to CommonJS to ES6 -- I seem to have lost something
-along the way, relating to the position/scaling in the canvas.
+![Screenshot](screenshot.png?raw=true "Screenshot")
 
 ## Sound
 
-This module does not include the sound generation.
+This module does not include the sound generation nor an interface to 3d visualisation.
 
 ## Sample Input
 

@@ -112,10 +112,12 @@ textarea {
 
 #canvases {
 	margin-top: 1em;
-	text-align: center;
 	width: 100%;
 }
 
 canvas {
+	max-width: 29vw;
+	float: left;
+	margin: 1em;
 }
 
