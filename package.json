@@ -36,7 +36,7 @@
 		"spectron": "^5.0.0",
 		"tmp": "0.0.33"
 	},
-	"repository": "git@github.com:leegee/commonjs-play-lsystems.git",
+	"repository": "git@github.com:leegee/lsys-gui.git",
 	"dependencies": {
 		"clean-stack": "^2.1.0",
 		"electron-compile": "^6.4.4",
