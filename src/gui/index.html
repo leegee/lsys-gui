@@ -59,8 +59,7 @@
                             <legend>MIDI</legend>
                             <p>
                                 <label>Note&nbsp;duration
-                                    <input type='range' min=1 max=60 id='duration' value=48 aria-valuemin='1'
-                                        aria-valuemax='60'>
+                                    <input type='range' min=1 max=60 id='duration'>
                                 </label>
                             </p>
                             <p>
@@ -105,83 +104,81 @@
 
     <section id='viewSettings'>
         <form>
-
             <fieldset>
-                <legend>Programatic Colours</legend>
+                <legend>Programmatic Colours</legend>
                 <p>
-                    <label>c0
+                    <label>
                         <input type='color' id='colours-0'>
                         <input type='range' id='opacities-0' min=0 max=1 step=0.02>
+                        C0
                     </label>
                 </p>
                 <p>
-                    <label>c1
+                    <label>
                         <input type='color' id='colours-1'>
                         <input type='range' id='opacities-1' min=0 max=1 step=0.02>
+                        C1
                     </label>
                 </p>
                 <p>
-                    <label>c2
+                    <label>
                         <input type='color' id='colours-2'>
                         <input type='range' id='opacities-2' min=0 max=1 step=0.02>
+                        C2
                     </label>
                 </p>
                 <p>
-                    <label>c3
+                    <label>
                         <input type='color' id='colours-3'>
                         <input type='range' id='opacities-3' min=0 max=1 step=0.02>
+                        C3
                     </label>
                 </p>
             </fieldset>
 
             <fieldset>
                 <legend>Canvas</legend>
-                <p>
-                    <label>Width
-                        <input type='range' id='canvasWidth' data-scale='0.5' min=100 max=2000>
-                    </label>
-                    <label>Weight
-                        <input type='range' id='canvasHeight' data-scale='0.5' min=100 max=2000>
-                    </label>
+                <p></p>
+                <label>
+                    <input type='range' id='canvasWidth' data-scale='0.5' min=100 max=2000>
+                    Width
+                </label>
+                <label>
+                    <input type='range' id='canvasHeight' data-scale='0.5' min=100 max=2000>
+                    Height
+                </label>
                 </p>
                 <p>
-                    <label>Canvas Background <input type='color' id='canvasBackgroundColour'></label>
+                    <label> <input type='color' id='canvasBackgroundColour'> Canvas Background</label>
                 </p>
             </fieldset>
 
             <fieldset>
-                <legend>Turtle Step</legend>
+                <legend>Turtle Steps</legend>
                 <p>
-                    <label>X
-                        <input type='range' id='turtleStepX' data-monitor='turtleStepX' min=1 max=50>
-                    </label>
+                    <label> <input type='range' id='turtleStepX' data-monitor='turtleStepX' min=1 max=50> X</label>
 
-                    <label> Y
-                        <input type='range' id='turtleStepY' min=1 max=50 aria-valuemin='1'>
-                    </label>
+                    <label><input type='range' id='turtleStepY' min=1 max=50 aria-valuemin='1'> Y</label>
+                </p>
+            </fieldset>
+
+            <fieldset>
+                <legend>Initial Position</legend>
+                <p>
+                    <label for='initX'> <input type='text' id='initX'> X</label>
+                    <label for='initY'> <input type='text' id='initY'>Y</label>
                 </p>
 
-                <legend>Starting Position</legend>
                 <p>
-                    <label for='initX'>Init X</label>
-                    <input type='text' id='initX' value=''>
-                    <label for='initY'>Init Y</label>
-                    <input type='text' id='initY' value=''>
+                    <label>
+                        <input type='range' id='lineWidth' min=1 max=20>
+                        Line width
+                    </label>
                 </p>
-
-                <fieldset>
-                    <legend>Initial Offset</legend>
-                    <p>
-                        <label>X<input type='text' id='xoffset'></label>
-                        <label>Y<input type='text' id='yoffset'></label>
-                    </p>
-                </fieldset>
-
                 <p>
-                    <label>Line width <input type='range' id='lineWidth' min=1 max=20> </label>
-
-                    <label>Scale lines with age?
+                    <label>
                         <input type='checkbox' checked='true' name='generationsScaleLines' id='generationsScaleLines'>
+                        Scale lines with age?
                     </label>
                 </p>
             </fieldset>

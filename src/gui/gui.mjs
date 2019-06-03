@@ -79,7 +79,6 @@ module.exports = class GUI {
         this.createListeners();
         this.loadPreset();
         this.view(this.currentViewName);
-        // this.actionGenerate();
     }
 
     createListeners() {
@@ -291,6 +290,7 @@ module.exports = class GUI {
     actionGenerate(totalGenerations) {
         log.verbose('Enter actionGenerate');
         this._oldActionGenerate = this.elements.actionGenerate.value;
+        this.window.document.body.style.cursor = 'progress';
         this.elements.actionGenerate.value = 'Generating...';
         this.elements.actionGenerate.disabled = true;
         this.elements.actionCreateMidi.disabled = true;
@@ -526,6 +526,7 @@ module.exports = class GUI {
         });
 
         this.window.document.getElementById('contentDisplay').value = content;
+        this.window.document.body.style.cursor = 'default';
         this.elements.actionGenerate.value = this._oldActionGenerate;
         this.elements.actionGenerate.disabled = false;
         this.elements.actionCreateMidi.disabled = false;

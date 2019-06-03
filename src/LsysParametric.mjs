@@ -49,6 +49,7 @@ module.exports = class LsysParametric {
 		variables: '',
 		rules: null
 	};
+	postRenderCallback = () => {};
 
 	constructor(options) {
 
@@ -178,7 +179,9 @@ module.exports = class LsysParametric {
 		}
 
 		// this.render();
-		// this.postRender();
+
+		this.options.logger.info('Call postRenderCallback', this.postRenderCallback);
+		this.postRenderCallback();
 
 		this.options.logger.verbose('Leave generate');
 		return this;

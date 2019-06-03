@@ -7,7 +7,8 @@ const LsysParametric = require('../LsysParametric.mjs');
 const start = (args) => {
     const lsys = new LsysParametric({
         ...args,
-        logger: log
+        logger: log,
+        postRenderCallback: () => { alert('postRenderCallback') }
     });
     lsys.generate(args.totalGenerations);
     process.send({ cmd: 'call', methodName: 'lsysDone', content: lsys.content });
