@@ -13,7 +13,7 @@ const packageJson = require('../../package.json');
 
 module.exports = class GUI {
     logFilePath = log.findLogPath();
-    midi: new MIDI();
+    midi = new MIDI();
     currentViewName = 'viewMain';
     _lastGenerationContent = '';
     settings = {
@@ -58,7 +58,7 @@ module.exports = class GUI {
     init() {
         log.info('LOG AT ', this.logFilePath);
 
-        this.midi.activate();
+        this.midi.activate( this.navigator );
 
         this.window.document.title += ' v' + packageJson.version;
         this.createMenu();

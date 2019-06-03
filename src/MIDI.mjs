@@ -1,4 +1,4 @@
-module exports = class MIDI {
+module.exports = class MIDI {
 
     ready = false;
     options = {};
@@ -8,8 +8,9 @@ module exports = class MIDI {
         this.options = options;
     }
 
-    async activate() {
-        const access = await this.options.navigator.requestMIDIAccess();
+    async activate(navigator) {
+        this.navigator = navigator;
+        const access = await this.navigator.requestMIDIAccess();
         this.outputs = access.outputs.values();
 
         access.onstatechange = (e) => {

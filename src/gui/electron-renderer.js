@@ -24,7 +24,10 @@ window.addEventListener('DOMContentLoaded', () => {
         return o;
     }, {});
 
+    console.log('-----------', navigator);
+
     const gui = new GUI({
+        navigator,
         window,
         appConfig,
         elements
