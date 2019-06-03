@@ -37,18 +37,17 @@ body {
 .col {
 	display: table-cell;
 	vertical-align: middle;
-	width: 49%;
+	width: 48%;
+	overflow: hidden;
 }
 
 .col:nth-of-type(2) {
-	margin-left: 1%;
+	margin-left: 2%;
 }
 
 fieldset {
-	width: 100%;
 	border: 1px solid gray;
 	margin-bottom: 1em;
-	display: table-cell;
 }
 
 fieldset.small {
@@ -121,4 +120,3 @@ canvas {
 	float: left;
 	margin: 1em;
 }
-
