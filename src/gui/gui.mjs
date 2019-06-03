@@ -18,7 +18,6 @@ module.exports = class GUI {
         // mergeDuplicates: 1,
         duration: 48,
         scale: 'pentatonic',
-        initialNoteDecimal: 58,
         canvasWidth: 600,
         canvasHeight: 400,
         angle: 30,
@@ -80,7 +79,7 @@ module.exports = class GUI {
         this.createListeners();
         this.loadPreset();
         this.view(this.currentViewName);
-        this.actionGenerate();
+        // this.actionGenerate();
     }
 
     createListeners() {
@@ -181,14 +180,20 @@ module.exports = class GUI {
                             }
                         })
                     },
-
-                    { label: 'P&references', click: () => this.view('viewSettings') },
                     { role: 'separator' },
                     { role: 'quit' }
                 ]
             },
 
-            { role: 'viewMenu' },
+            {
+                label: '&View',
+                submenu: [
+                    { label: 'P&references', click: () => this.view('viewSettings') },
+                    { label: '&Clear', click: () => this.view('actionClear') },
+                ]
+            },
+
+            // { role: 'viewMenu' },
 
             {
                 label: '&Help',
@@ -244,11 +249,13 @@ module.exports = class GUI {
             try {
                 log.verbose('Preset set "%s" to "%s"', id, this.settings[id]);
                 const el = this.window.document.getElementById(id);
-                if (el.nodeName === 'INPUT') {
-                    el.value = this.settings[id];
-                }
-                else {
-                    el.innerText = this.settings[id];
+                if (el.nodeName) {
+                    if (el.nodeName === 'INPUT') {
+                        el.value = this.settings[id];
+                    }
+                    else {
+                        el.innerText = this.settings[id];
+                    }
                 }
                 this.settingsChanged(el);
             }
@@ -270,15 +277,18 @@ module.exports = class GUI {
         });
 
         this.updateSettings();
-
-        // this.window.document.getElementById('title').innerText = Presets[idx].title;
+        this.actionGenerate(1);
     }
 
     actionViewMain() {
         this.view('viewMain');
     }
 
-    actionGenerate() {
+    actionClear() {
+        this.elements.canvases.innerText = '';
+    }
+
+    actionGenerate(totalGenerations) {
         log.verbose('Enter actionGenerate');
         this._oldActionGenerate = this.elements.actionGenerate.value;
         this.elements.actionGenerate.value = 'Generating...';
@@ -306,7 +316,7 @@ module.exports = class GUI {
             start: this.settings.start,
             variables: this.settings.variables,
             rules: this.settings.rules,
-            totalGenerations: this.settings.totalGenerations
+            totalGenerations: totalGenerations || this.settings.totalGenerations
         }
         log.silly('Call Lsys with', settings);
         this.service('start', settings);
