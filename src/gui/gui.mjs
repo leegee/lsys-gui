@@ -516,10 +516,6 @@ module.exports = class GUI {
 
     lsysDone({ content }) {
         log.verbose('Enter lsysDone with %d byes of content', content.length);
-        // if (this.elTimeDisplay) {
-        //     this.elTimeDisplay.innerText = 'Generated in ' + (new Date().getTime() - (elTimeDisplay.get('text'))) + ' ms';
-        // }
-
         this.canvas.scrollIntoView({
             behavior: "smooth",
             block: "end"
