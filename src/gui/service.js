@@ -8,7 +8,9 @@ const start = (args) => {
     const lsys = new LsysParametric({
         ...args,
         logger: log,
-        postRenderCallback: () => { alert('postRenderCallback') }
+        // postRenderCallback: () => {
+        //     process.send({ cmd: 'call', methodName: 'doneGeneration', content: lsys.content });
+        // }
     });
     lsys.generate(args.totalGenerations);
     process.send({ cmd: 'call', methodName: 'lsysDone', content: lsys.content });

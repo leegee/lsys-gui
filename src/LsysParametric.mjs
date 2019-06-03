@@ -47,9 +47,9 @@ module.exports = class LsysParametric {
 	options = {
 		start: 'F',
 		variables: '',
-		rules: null
+		rules: null,
+		postRenderCallback: () => {}
 	};
-	postRenderCallback = () => {};
 
 	constructor(options) {
 
@@ -178,10 +178,8 @@ module.exports = class LsysParametric {
 			this._applyRules();
 		}
 
-		// this.render();
-
-		this.options.logger.info('Call postRenderCallback', this.postRenderCallback);
-		this.postRenderCallback();
+		this.options.logger.info('Call postRenderCallback', this.options.postRenderCallback(this.content));
+		this.options.postRenderCallback();
 
 		this.options.logger.verbose('Leave generate');
 		return this;
@@ -223,7 +221,7 @@ module.exports = class LsysParametric {
 		this.options.logger.silly('Enter applyRules for generation ' + this.generation);
 		let finalContent = '';
 
-		// Itterate over atoms within the content?
+		// Itterate over atoms within the content:
 		const atoms = this.content.match(/(.(\([^)]+\))?)/g);
 		if (this.content != atoms.join('')) {
 			this.options.logger.error(atoms);
@@ -231,8 +229,8 @@ module.exports = class LsysParametric {
 			throw new Error('Atomic regex failed, results would be wrong');
 		}
 
+		// Run production rules:
 		atoms.forEach((atom) => {
-			// Run production rules:
 			let ruleNumber = 0;
 			let ruleSuccessfullyApplied = false;
 
@@ -266,7 +264,7 @@ module.exports = class LsysParametric {
 						const ruleConditionJs = this._interploateVars(rule[1]);
 						this.options.logger.silly('Rule ' + ruleNumber + ' condition: ' + ruleConditionJs);
 
-						// Decide if the substitution take place
+						// Decide if the substitution should take place:
 						let ruleConditionMet = ruleConditionJs.length === 0; // || eval ruleConditionMet
 
 						if (!ruleConditionMet) {
@@ -277,7 +275,7 @@ module.exports = class LsysParametric {
 							}
 						}
 
-						// No substitutions
+						// No substitutions:
 						if (!ruleConditionMet) {
 							this.options.logger.silly('Condition not met');
 							return original;
@@ -296,7 +294,7 @@ module.exports = class LsysParametric {
 				if (ruleSuccessfullyApplied) {
 					atom = atomAfterRuleApplied;
 					this.options.logger.silly('After fulfilled rule ' + ruleNumber + ' was applied, atom is: ' + atom);
-					return;
+					return; // next
 				}
 
 			}); // Next rule
@@ -309,7 +307,7 @@ module.exports = class LsysParametric {
 		this.options.logger.silly('After all rules were applied, content is: ', this.content);
 		this.options.logger.verbose(
 			'# FINAL for generation ' + this.generation + '/' + this.totalGenerations +
-			' ############################ Content: ' + this.content
+			'\n################################################\nContent: ' + this.content
 		);
 	};
 

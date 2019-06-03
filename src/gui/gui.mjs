@@ -14,6 +14,7 @@ module.exports = class GUI {
     logFilePath = log.findLogPath();
 
     currentViewName = 'viewMain';
+    _lastGenerationContent = '';
     settings = {
         // mergeDuplicates: 1,
         duration: 48,
@@ -233,7 +234,14 @@ module.exports = class GUI {
                     log.error(msg);
                     throw new Error((msg.title || 'NO TITLE' + ' ' + msg.name || 'NO_ERROR_NAME') + ' ' + (msg.message || 'NO_ERROR_MESSAGE'));
                 case 'call':
-                    this[msg.methodName](msg);
+                    try {
+                        this[msg.methodName](msg);
+                    } catch (e) {
+                        if (e.name === 'TypeError') {
+                            log.error('MethodName: ', msg.methodName);
+                            throw e;
+                        }
+                    }
                     break;
                 default:
                     log.error('Unknown command: ', msg);
@@ -248,15 +256,17 @@ module.exports = class GUI {
             try {
                 log.verbose('Preset set "%s" to "%s"', id, this.settings[id]);
                 const el = this.window.document.getElementById(id);
-                if (el.nodeName) {
-                    if (el.nodeName === 'INPUT') {
-                        el.value = this.settings[id];
+                if (el) {
+                    if (el.nodeName) {
+                        if (el.nodeName === 'INPUT') {
+                            el.value = this.settings[id];
+                        }
+                        else {
+                            el.innerText = this.settings[id];
+                        }
                     }
-                    else {
-                        el.innerText = this.settings[id];
-                    }
+                    this.settingsChanged(el);
                 }
-                this.settingsChanged(el);
             }
             catch (e) {
                 log.error('Could not set ' + id + '.value: missing GUI element?\n', e);
@@ -302,6 +312,10 @@ module.exports = class GUI {
         this.setCanvas();
 
         this.elements.canvases.insertBefore(this.canvas, this.elements.canvases.firstChild);
+        this.canvas.scrollIntoView({
+            behavior: "smooth",
+            block: "end"
+        });
 
         this.x = this.maxX = this.minX = Number(this.settings.initX);
         this.y = this.maxY = this.minY = Number(this.settings.initY);
@@ -323,21 +337,21 @@ module.exports = class GUI {
     }
 
     actionGenerateMidi() {
-        const oldValue = this.createMidi.value;
-        this.createMidi.value = 'Hang on...';
-        this.createMidi.disabled = true;
-        fetch('/cgi-bin/fractal_plant_chords.cgi', {
-            duration: this.settings.duration,
-            angle: this.settings.angle,
-            scale: this.settings.scale
-        }).then(() => {
-            this.playSound("/cgi-output/cgi.midi");
-            this.createMidi.value = oldValue;
-            this.createMidi.disabled = false;
-        }).catch(e => {
-            log.error(e);
-            alert('Failure :(');
-        });
+        // const oldValue = this.createMidi.value;
+        // this.createMidi.value = 'Hang on...';
+        // this.createMidi.disabled = true;
+        // fetch('/cgi-bin/fractal_plant_chords.cgi', {
+        //     duration: this.settings.duration,
+        //     angle: this.settings.angle,
+        //     scale: this.settings.scale
+        // }).then(() => {
+        //     this.playSound("/cgi-output/cgi.midi");
+        //     this.createMidi.value = oldValue;
+        //     this.createMidi.disabled = false;
+        // }).catch(e => {
+        //     log.error(e);
+        //     alert('Failure :(');
+        // });
     }
 
     openElementInNewWindow(canvas) {
@@ -516,11 +530,6 @@ module.exports = class GUI {
 
     lsysDone({ content }) {
         log.verbose('Enter lsysDone with %d byes of content', content.length);
-        this.canvas.scrollIntoView({
-            behavior: "smooth",
-            block: "end"
-        });
-
         this.window.document.getElementById('contentDisplay').value = content;
         this.window.document.body.style.cursor = 'default';
         this.elements.actionGenerate.value = this._oldActionGenerate;
@@ -532,5 +541,16 @@ module.exports = class GUI {
 
         this.lsysFinalise();
         this.canvas.addEventListener('click', (e) => this.openElementInNewWindow(e.target));
+    }
+
+    doneGeneration(content) {
+        log.info('###########################################\n', content);
+        const currentGeneration = currentGeneration.substring(
+            this._lastGenerationContent.length
+        );
+        this.lsysResize(currentGeneration);
+        this.lsysRender(currentGeneration);
+        this._lastGenerationContent = currentGeneration;
+        this.window.alert('continue');
     }
 }
