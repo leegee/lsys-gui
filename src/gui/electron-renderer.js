@@ -1,7 +1,7 @@
 const electron = require('electron');
 
-const GUI = require('./gui.mjs');
-const handleError = require('./electron-error.mjs');
+const GUI = require('./GUI.mjs');
+const handleError = require('./Electron-error.mjs');
 const appConfig = require('../../app.config');
 
 window.addEventListener('error', event => {

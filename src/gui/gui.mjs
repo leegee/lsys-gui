@@ -6,13 +6,14 @@ const { fork } = require('child_process');
 const electron = require('electron');
 
 const LsysParametric = require('../LsysParametric.mjs');
+const MIDI = require('../MIDI.mjs');
 const log = require('./electron-log.mjs');
-const Presets = require('./presets.mjs');
+const Presets = require('./Presets.mjs');
 const packageJson = require('../../package.json');
 
 module.exports = class GUI {
     logFilePath = log.findLogPath();
-
+    midi: new MIDI();
     currentViewName = 'viewMain';
     _lastGenerationContent = '';
     settings = {
@@ -56,6 +57,9 @@ module.exports = class GUI {
 
     init() {
         log.info('LOG AT ', this.logFilePath);
+
+        this.midi.activate();
+
         this.window.document.title += ' v' + packageJson.version;
         this.createMenu();
 
@@ -337,6 +341,7 @@ module.exports = class GUI {
     }
 
     actionGenerateMidi() {
+
         // const oldValue = this.createMidi.value;
         // this.createMidi.value = 'Hang on...';
         // this.createMidi.disabled = true;

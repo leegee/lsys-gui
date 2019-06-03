@@ -3,7 +3,7 @@ const path = require('path');
 const url = require('url');
 
 const appConfig = require('../../app.config');
-const handleError = require('./electron-error.mjs');
+const handleError = require('./Electron-error.mjs');
 
 let mainWindow;
 
