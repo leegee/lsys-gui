@@ -36,15 +36,19 @@ module.exports = class MIDI {
 
     sendC() {
         this.log.info('SEND');
-        const noteOnMessage = [0x90, 60, 0x7f];    // note on, middle C, full velocity
         // const  output = this.outputs.get(portID);
         Object.keys(this.usePorts).forEach(portIndex => {
             if (this.usePorts[portIndex]) {
+                this.log.info('SEND ON MIDI PORT', portIndex);
                 const output = this.outputs[portIndex];
-                output.send(noteOnMessage);  //omitting the timestamp means send immediately.
-                output.send([0x80, 60, 0x40], this.window.performance.now() + 1000.0); // Inlined array creation- note off, middle C,  
-                // release velocity = 64, timestamp = now + 1000ms.
+                console.log(output);
+                output.send([0x90, 60, 0x7f]);    // note on, middle C, full velocity
+                output.send([0x80, 60, 0x40], this.window.performance.now() + 1000.0); // off
             }
         });
+    }
+
+    writeFile(noteCodes) {
+        console.info('noteCodes', noteCodes);
     }
 }

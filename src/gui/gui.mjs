@@ -16,12 +16,14 @@ module.exports = class GUI {
     midi = new MIDI();
     currentViewName = 'viewMain';
     _lastGenerationContent = '';
+    notesContent = [];
     settings = {
         // mergeDuplicates: 1,
         duration: 48,
         scale: 'pentatonic',
-        canvasWidth: 600,
-        canvasHeight: 400,
+        initialNote: 50,
+        canvasWidth: 1000,
+        canvasHeight: 800,
         angle: 30,
         xoffset: 0,
         yoffset: 0,
@@ -65,7 +67,7 @@ module.exports = class GUI {
                 const el = this.window.document.createElement('li');
                 el.innerHTML = '<label><input type="checkbox" checked class="midiPort" data-index="' + index + '">' + output.name + '</label>';
                 this.elements.midiPorts.appendChild(el);
-                el.addEventListener('click', e => this.changeMidiPort(e) );
+                el.addEventListener('click', e => this.midi.togglePort(e.target.dataset.index, e.target.checked));
             });
         });
 
@@ -315,10 +317,6 @@ module.exports = class GUI {
         this.elements.canvases.innerText = '';
     }
 
-    changeMidiPort(e) {
-        this.midi.togglePort( e.target.dataset.index, e.target.checked );
-    }
-
     actionGenerate(totalGenerations) {
         log.verbose('Enter actionGenerate');
         this._oldActionGenerate = this.elements.actionGenerate.value;
@@ -360,6 +358,7 @@ module.exports = class GUI {
 
     actionCreateMidi() {
         this.midi.sendC(this.settings.midiPort);
+        this.midi.writeFile(this.notesContent);
         // const oldValue = this.createMidi.value;
         // this.createMidi.value = 'Hang on...';
         // this.createMidi.disabled = true;
@@ -429,6 +428,7 @@ module.exports = class GUI {
     };
 
     lsysRender(content) {
+        let note = Number(this.settings.initialNote || 0.5) * 256;
         let dir = 0;
         const states = [];
 
@@ -453,10 +453,10 @@ module.exports = class GUI {
                     draw = false;
                     break;
                 case '+': // Right
-                    dir += this.settings.angle;
+                    dir += Number(this.settings.angle);
                     break;
                 case '-': // Left
-                    dir -= this.settings.angle;
+                    dir -= Number(this.settings.angle);
                     break;
                 case '[': // Start a branch
                     states.push([dir, this.x, this.y, this.colour, this.stepped]);
@@ -476,6 +476,10 @@ module.exports = class GUI {
 
             if (draw) {
                 this.lsysTurtleGraph(dir);
+                console.info('DRAW', note, dir);
+                note += Number(dir);
+                this.notesContent[this.stepped] = this.notesContent[this.stepped] || [];
+                this.notesContent[this.stepped].push(note);
                 this.stepped++;
             }
         }
