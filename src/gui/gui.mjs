@@ -56,9 +56,18 @@ module.exports = class GUI {
     }
 
     init() {
-        log.info('LOG AT ', this.logFilePath);
-
-        this.midi.activate( this.navigator );
+        this.midi.activate({
+            log,
+            navigator: this.navigator,
+            window: this.window
+        }).then(() => {
+            this.midi.outputs.forEach((output, index) => {
+                const el = this.window.document.createElement('li');
+                el.innerHTML = '<label><input type="checkbox" checked class="midiPort" data-index="' + index + '">' + output.name + '</label>';
+                this.elements.midiPorts.appendChild(el);
+                el.addEventListener('click', e => this.changeMidiPort(e) );
+            });
+        });
 
         this.window.document.title += ' v' + packageJson.version;
         this.createMenu();
@@ -88,9 +97,14 @@ module.exports = class GUI {
 
     createListeners() {
         this.window.document.addEventListener('click', e => {
-            if (this.actions[e.target.id]) {
-                this[e.target.id]();
-                return false;
+            try {
+                if (e.target.id && this.actions[e.target.id]) {
+                    this[e.target.id]();
+                    return false;
+                }
+            } catch (err) {
+                log.error('e=', e.target.id);
+                throw new Error(err);
             }
         }, {
                 passive: true
@@ -301,6 +315,10 @@ module.exports = class GUI {
         this.elements.canvases.innerText = '';
     }
 
+    changeMidiPort(e) {
+        this.midi.togglePort( e.target.dataset.index, e.target.checked );
+    }
+
     actionGenerate(totalGenerations) {
         log.verbose('Enter actionGenerate');
         this._oldActionGenerate = this.elements.actionGenerate.value;
@@ -340,8 +358,8 @@ module.exports = class GUI {
         this.service('start', settings);
     }
 
-    actionGenerateMidi() {
-
+    actionCreateMidi() {
+        this.midi.sendC(this.settings.midiPort);
         // const oldValue = this.createMidi.value;
         // this.createMidi.value = 'Hang on...';
         // this.createMidi.disabled = true;

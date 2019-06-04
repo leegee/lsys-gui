@@ -1,3 +1,11 @@
+
+module.exports = console;
+
+console.verbose = console.silly = console.log;
+
+console.findLogPath = () => {};
+
+/*
 const fs = require('fs');
 const log = require('electron-log');
 
@@ -36,3 +44,5 @@ log.transports.file.clear = () => {
 log.transports.file.clear();
 
 module.exports = log;
+
+*/

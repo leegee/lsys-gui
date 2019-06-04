@@ -16,7 +16,7 @@ window.addEventListener('unhandledrejection', event => {
 
 window.addEventListener('DOMContentLoaded', () => {
     const elements = [
-        'canvases',
+        'canvases', 'midiPorts',
         'viewMain', 'viewSettings',
         'actionGenerate', 'actionCreateMidi', 'actionViewMain'
     ].reduce((o, key) => {
