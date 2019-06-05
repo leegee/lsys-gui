@@ -10,11 +10,12 @@
 
 ## Sound
 
-This module does not include the sound generation nor an interface to 3d visualisation.
+This module does not include an interface to 3d visualisation, 
+nor real-time MIDI output, but does include 2d visualisation and MIDI file output.
 
 ## Sample Input
 
-The sample GUI contains several presets, using the following style:
+The sample GUI contains several presets, using the following parametric-compatible style:
 
     #define W    0.5
     #define AS 	 2

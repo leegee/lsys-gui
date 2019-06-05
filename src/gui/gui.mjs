@@ -14,7 +14,8 @@ const packageJson = require('../../package.json');
 
 module.exports = class GUI {
     logFilePath = log.findLogPath();
-    midi = new MIDI();
+    midiFilePath = path.resolve('output.mid');
+    midi = null;
     canvas = null;
     lsysRenderer = null;
     currentViewName = 'viewMain';
@@ -58,6 +59,7 @@ module.exports = class GUI {
         this.settings.canvasHeight = height;
 
         this.win = electron.remote.BrowserWindow.getFocusedWindow();
+        this.midi = new MIDI(this.midiFilePath);
     }
 
     init() {
@@ -207,7 +209,11 @@ module.exports = class GUI {
                 label: '&View',
                 submenu: [
                     { label: 'P&references', click: () => this.view('viewSettings') },
-                    { label: '&Clear', click: () => this.view('actionClear') },
+                    { label: '&Clear Canvases', click: () => this.view('actionClear') },
+                    {
+                        label: 'Show &MIDI File',
+                        click: () => electron.shell.showItemInFolder(this.midiFilePath)
+                    },
                 ]
             },
 

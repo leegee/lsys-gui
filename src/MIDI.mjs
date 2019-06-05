@@ -1,5 +1,5 @@
 const fs = require('fs');
-const path = require('path');
+
 const MidiWriter = require('midi-writer-js');
 const JZZ = require('jzz');
 require('jzz-synth-osc')(JZZ);
@@ -15,7 +15,10 @@ module.exports = class MIDI {
     outputs = [];
     outputToUse = 1;
     usePorts = {};
-    outputMidiPath = path.resolve('output.mid');
+
+    constructor(outputMidiPath) {
+        this.outputMidiPath = outputMidiPath;
+    }
 
     async activate(options) {
         Object.keys(options).forEach(option => this[option] = options[option]);
