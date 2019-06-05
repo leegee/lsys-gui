@@ -162,10 +162,14 @@ const LsysRenderer = class LsysRenderer {
 
         if (noteToX - noteFromX <= 0) {
             console.info(noteFromX, noteFromY, 'to', noteToX, noteToY, '...', noteToX - noteFromX);
-            // throw new Error('Unexpected timing condition whilst rendering.')
-            const _ = noteFromX;
-            noteFromX = noteToX;
-            noteToX = _;
+            if (this.settings.backInTime) {
+                // throw new Error('Unexpected timing condition whilst rendering.')
+                const _ = noteFromX;
+                noteFromX = noteToX;
+                noteToX = _;
+            } else {
+                noteToX = Math.abs(noteToX);
+            }
         }
 
         this.notesContent.on[noteFromX] = this.notesContent.on[noteFromX] || [];

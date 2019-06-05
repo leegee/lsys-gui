@@ -59,8 +59,14 @@
                         <fieldset>
                             <legend>MIDI</legend>
                             <p>
+                                <label>Allow notes to be placed back in the past?
+                                    <input type='checkbox' id='backInTime' />
+                                </label>
+                            </p>
+                            <p>
                                 <label>Note duration <input type='range' min=1 max=100 id='duration'> </label>
-                                <label>Initial note <input type='range' min=0 max=1 step=0.01 value=.5 id='initialNote'> </label>
+                                <label>Initial note <input type='range' min=0 max=1 step=0.01 value=.5 id='initialNote'>
+                                </label>
                             </p>
                             <label>Ports
                                 <ul id='midiPorts'></ul>

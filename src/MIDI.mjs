@@ -121,7 +121,6 @@ module.exports = class MIDI {
                 const noteIndex = Math.abs(pitch) % scale.length;
                 const note = scale[noteIndex];
                 const octave = Math.round(Math.abs(pitch) / (127 / 8));
-
                 console.log('---------------', pitchOffset, pitch, noteIndex, note, octave);
 
                 const noteEvent = {

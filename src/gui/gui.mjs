@@ -21,7 +21,7 @@ module.exports = class GUI {
     _lastGenerationContent = '';
     settings = {
         // mergeDuplicates: 1,
-        duration: 18,
+        duration: 5,
         scale: 'pentatonic',
         initialNote: 50,
         canvasWidth: 1000,
@@ -34,6 +34,7 @@ module.exports = class GUI {
         lineWidth: 10,
         initX: null,
         initY: null,
+        backInTime: true,
         canvasBackgroundColour: '#eeeeee',
         opacities: [
             0.8, 0.6, 0.5, 0.4
@@ -220,6 +221,11 @@ module.exports = class GUI {
                         click: () => electron.shell.showItemInFolder(this.logFilePath)
                     },
                     {
+                        label: '&Developer Tools',
+                        click: () => this.win.openDevTools(),
+                    },
+                    {
+
                         label: '&Support',
                         click: () => electron.shell.openExternalSync('https://lee.goddards.space')
                     }
@@ -277,7 +283,14 @@ module.exports = class GUI {
                 if (el) {
                     if (el.nodeName) {
                         if (el.nodeName === 'INPUT') {
-                            el.value = this.settings[id];
+                            const type = el.getAttribute('type');
+                            if (type === 'checkbox') {
+                                el.value = 1;
+                                el.checked = this.settings[id];
+                                el.setAttribute('checked', this.settings[id]);
+                            } else {
+                                el.value = this.settings[id];
+                            }
                         }
                         else {
                             el.innerText = this.settings[id];
