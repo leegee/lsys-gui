@@ -35,7 +35,7 @@ module.exports = class GUI {
         lineWidth: 10,
         initX: null,
         initY: null,
-        backInTime: true,
+        backInTime: false,
         canvasBackgroundColour: '#eeeeee',
         opacities: [
             0.8, 0.6, 0.5, 0.4
@@ -68,12 +68,14 @@ module.exports = class GUI {
             navigator: this.navigator,
             window: this.window
         }).then(() => {
+            /*
             this.midi.outputs.forEach((output, index) => {
                 const el = this.window.document.createElement('li');
                 el.innerHTML = '<label><input type="checkbox" checked class="midiPort" data-index="' + index + '">' + output.name + '</label>';
                 this.elements.midiPorts.appendChild(el);
                 el.addEventListener('click', e => this.midi.togglePort(e.target.dataset.index, e.target.checked));
             });
+            */
         });
 
         this.window.document.title += ' v' + packageJson.version;
@@ -128,7 +130,11 @@ module.exports = class GUI {
             if (matchGroup) {
                 this.settings[matchGroup[1]][matchGroup[2]] = el.value.trim();
                 log.debug('INTPUT el %o changed %s[%d] to %s', matchGroup[1], matchGroup[2], this.settings[matchGroup[1]][matchGroup[2]]);
-            } else {
+            }
+            else if (e.type === 'checkbox') {
+                this.settings[el.id] = el.checked;
+            }
+            else {
                 this.settings[el.id] = el.value.trim();
                 log.silly('INPUT el %o changed to %s: ', el.id, this.settings[el.id], el);
             }
@@ -292,8 +298,10 @@ module.exports = class GUI {
                             const type = el.getAttribute('type');
                             if (type === 'checkbox') {
                                 el.value = 1;
-                                el.checked = this.settings[id];
-                                el.setAttribute('checked', this.settings[id]);
+                                if (this.settings[id]) {
+                                    el.checked = this.settings[id];
+                                    el.setAttribute('checked', this.settings[id]);
+                                }
                             } else {
                                 el.value = this.settings[id];
                             }
@@ -381,10 +389,12 @@ module.exports = class GUI {
 
     openElementInNewWindow(canvas) {
         log.silly('Enter openElementInNewWindow');
+        const title = this.settings.totalGenerations + ' generations of ' + this.settings.rules;
         let win = new electron.remote.BrowserWindow({
             parent: this.win,
             // modal: true,
             show: false,
+            title,
             backgroundColor: '#000000',
             width: this.appConfig.gui.openInNewWindow.width,
             height: this.appConfig.gui.openInNewWindow.height
@@ -410,22 +420,18 @@ module.exports = class GUI {
     }
 
     lsysDone({ content }) {
-        log.info('Enter lsysDone with %d byes of content', content.length);
+        log.silly('Enter lsysDone with %d byes of content', content.length);
         this.window.document.getElementById('contentDisplay').value = content;
         this.window.document.body.style.cursor = 'default';
         this.elements.actionGenerate.value = this._oldActionGenerate;
         this.elements.actionGenerate.disabled = false;
         this.elements.actionCreateMidi.disabled = false;
 
-        log.info('Call lsysRender');
         this.lsysRenderer.render(content);
-        log.info('Call resize');
         this.lsysRenderer.resize(content);
-        log.info('Call lsysRender again');
         this.lsysRenderer.lsysFinalise();
-        log.info('Attach click handler');
         this.canvas.addEventListener('click', (e) => this.openElementInNewWindow(e.target));
-        log.info('FINISHED lsysDone');
+        log.silly('FINISHED lsysDone');
     }
 
 }

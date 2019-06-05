@@ -38,9 +38,7 @@
                                 <textarea id='rules'></textarea>
                             </p>
                             <p>
-                                <label class='long'>Axiom (seed)
-                                    <textarea id='start'></textarea>
-                                </label>
+                                <label class='long'>Axiom (seed) <input type='text' id='start'> </label>
                             </p>
                             <p>
                                 <label>Angle
@@ -68,9 +66,13 @@
                                 <label>Initial note <input type='range' min=0 max=1 step=0.01 value=.5 id='initialNote'>
                                 </label>
                             </p>
+
+                            <!--
                             <label>Ports
                                 <ul id='midiPorts'></ul>
                             </label>
+                        -->
+
                             <p>
                                 <label>Scale
                                     <select id='scale'>
@@ -89,7 +91,7 @@
                         </fieldset>
 
                         </fieldset>
-                        <label>Commands
+                        <label>Output
                             <textarea id='contentDisplay'></textarea>
                         </label>
                         </fieldset>
@@ -98,10 +100,10 @@
 
                 <div class='row'>
                     <div class='col'>
-                        <input type='button' id='actionGenerate' value='Generate' />
+                        <input type='button' id='actionGenerate' value='Generate image' />
                     </div>
                     <div class='col'>
-                        <input type='button' id='actionCreateMidi' value='Generate MIDI' />
+                        <input type='button' id='actionCreateMidi' value='Generate MIDI from image' />
                     </div>
                 </div>
             </form>

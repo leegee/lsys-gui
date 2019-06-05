@@ -1,5 +1,5 @@
 module.exports = {
-    dev: true, // process.env.DEV || false,
+    dev: process.env.DEV || false,
     gui: {
         width: 1000,
         height: 1000,
