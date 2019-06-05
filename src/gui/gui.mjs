@@ -200,16 +200,16 @@ module.exports = class GUI {
                             }
                         })
                     },
+                    { label: 'P&references', click: () => this.view('viewSettings') },
                     { role: 'separator' },
                     { role: 'quit' }
                 ]
             },
 
             {
-                label: '&View',
+                label: 'Ac&tions',
                 submenu: [
-                    { label: 'P&references', click: () => this.view('viewSettings') },
-                    { label: '&Clear Canvases', click: () => this.view('actionClear') },
+                    { label: '&Clear Canvases', click: () => this.actionClear() },
                     {
                         label: 'Show &MIDI File',
                         click: () => electron.shell.showItemInFolder(this.midiFilePath)
