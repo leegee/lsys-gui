@@ -6,6 +6,10 @@ require('jzz-synth-osc')(JZZ);
 require('jzz-midi-smf')(JZZ);
 
 module.exports = class MIDI {
+    static scales = {
+        pentatonic: ['E', 'G', 'A', 'B', 'D']
+    };
+
     ready = false;
     options = {};
     outputs = [];
@@ -60,8 +64,12 @@ module.exports = class MIDI {
         });
     }
 
-    play(notes, duration) {
-        this.create(notes, duration);
+    play(notes, scaleName, duration) {
+        if (!MIDI.scales.hasOwnProperty(scaleName)) {
+            throw new TypeError('Unknown scale, ' + scaleName);
+        }
+
+        this.create(notes, MIDI.scales[scaleName], duration);
 
         console.log('this.outputMidiPath', this.outputMidiPath);
         try {
@@ -80,7 +88,7 @@ module.exports = class MIDI {
     @param {object} notes.on note on values
     @param {object} notes.off note off values
      */
-    create(notes, durationScaleFactor) {
+    create(notes, scale, durationScaleFactor) {
         console.log('----------------\n', JSON.stringify(notes, {}, '    '));
         console.log('durationScaleFactor', durationScaleFactor);
         let minVelocity = 50;
@@ -110,14 +118,25 @@ module.exports = class MIDI {
 
             notes.on[startTimeIndex].forEach((noteValue, arrayIndex) => {
                 const pitch = pitchOffset + Math.round(noteValue); // Here fit to scale
+                const noteIndex = Math.abs(pitch) % scale.length;
+                const note = scale[noteIndex];
+                const octave = Math.round(Math.abs(pitch) / (127 / 8));
+
+                console.log('---------------', pitchOffset, pitch, noteIndex, note, octave);
+
                 const noteEvent = {
-                    pitch,
+                    pitch: note + octave,
                     duration: 'T' + Math.round(notes.off[startTimeIndex][0] * durationScaleFactor),
                     velocity: Math.round((Object.keys(chordToPlay).length * velocityScaleFactor) + minVelocity),
                     startTick: Math.round(startTimeIndex * durationScaleFactor)
                 };
                 console.log(noteEvent);
-                this.track.addEvent(new MidiWriter.NoteEvent(noteEvent));
+
+                if (pitch <= 127) {
+                    this.track.addEvent(new MidiWriter.NoteEvent(noteEvent));
+                } else {
+                    console.warn('NOTE OUT OF BOUNDS');
+                }
             });
         });
 

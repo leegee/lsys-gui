@@ -143,8 +143,8 @@ const LsysRenderer = class LsysRenderer {
             this.ctx.moveTo(this.x, this.y);
         }
 
-        const fromX = this.x;
-        const fromY = this.y;
+        let noteFromX = this.x;
+        const noteFromY = this.y;
 
         this.x += (LsysRenderer.dcos(dir) * this.settings.turtleStepX);
         this.y += (LsysRenderer.dsin(dir) * this.settings.turtleStepY);
@@ -157,20 +157,22 @@ const LsysRenderer = class LsysRenderer {
             this.ctx.closePath();
         }
 
-        const toX = this.x;
-        const toY = this.y;
+        let noteToX = this.x;
+        const noteToY = this.y;
 
-
-        this.notesContent.on[fromX] = this.notesContent.on[fromX] || [];
-        this.notesContent.on[fromX].push(fromY);
-
-        this.notesContent.off[fromX] = this.notesContent.off[fromX] || [];
-        this.notesContent.off[fromX].push(toX - fromX);
-
-        if (toX - fromX <= 0) {
-            console.info(fromX, fromY, 'to', toX, toY, '...', toX - fromX);
-            throw new Error('Unexpected timing condition whilst rendering.')
+        if (noteToX - noteFromX <= 0) {
+            console.info(noteFromX, noteFromY, 'to', noteToX, noteToY, '...', noteToX - noteFromX);
+            // throw new Error('Unexpected timing condition whilst rendering.')
+            const _ = noteFromX;
+            noteFromX = noteToX;
+            noteToX = _;
         }
+
+        this.notesContent.on[noteFromX] = this.notesContent.on[noteFromX] || [];
+        this.notesContent.on[noteFromX].push(noteFromY);
+
+        this.notesContent.off[noteFromX] = this.notesContent.off[noteFromX] || [];
+        this.notesContent.off[noteFromX].push(noteToX - noteFromX);
 
         if (!this.penUp) {
             log.silly('DRAW in colour ', this.ctx.strokeStyle);

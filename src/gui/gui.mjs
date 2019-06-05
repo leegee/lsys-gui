@@ -351,6 +351,7 @@ module.exports = class GUI {
 
         this.midi.play(
             this.lsysRenderer.notesContent,
+            this.settings.scale,
             this.settings.duration
         ); // this.settings.midiPort, 
 
