@@ -10,7 +10,10 @@ const LsysRenderer = class LsysRenderer {
     x = null;
     y = null;
     preparedColours = [];
-    notesContent = {};
+    notesContent = {
+        on: {},
+        off: {}
+    };
     stepped = null;
 
     static dsin(radians) {
@@ -72,7 +75,10 @@ const LsysRenderer = class LsysRenderer {
     render(content) {
         let dir = 0;
         const states = [];
-        this.notesContent = {};
+        this.notesContent = {
+            on: {},
+            off: {}
+        };
 
         this.stepped = 0;
 
@@ -126,15 +132,17 @@ const LsysRenderer = class LsysRenderer {
     turtleGraph(dir) {
         log.silly('Move dir (%s) from x (%s) y (%s)', dir, this.x, this.y);
 
-        this.ctx.beginPath();
-        if (this.settings.generationsScaleLines > 0) {
-            this.ctx.lineWidth = this.settings.lineWidth;
-        }
-        else if (this.settings.lineWidth) {
-            this.ctx.lineWidth = this.settings.lineWidth;
+        if (!this.penUp) {
+            this.ctx.beginPath();
+            if (this.settings.generationsScaleLines > 0) {
+                this.ctx.lineWidth = this.settings.lineWidth;
+            }
+            else if (this.settings.lineWidth) {
+                this.ctx.lineWidth = this.settings.lineWidth;
+            }
+            this.ctx.moveTo(this.x, this.y);
         }
 
-        this.ctx.moveTo(this.x, this.y);
         const fromX = this.x;
         const fromY = this.y;
 
@@ -144,23 +152,31 @@ const LsysRenderer = class LsysRenderer {
         this.x += this.settings.xoffset;
         this.y += this.settings.yoffset;
 
-        this.ctx.lineTo(Math.round(this.x), Math.round(this.y));
-        this.ctx.closePath();
+        if (!this.penUp) {
+            this.ctx.lineTo(Math.round(this.x), Math.round(this.y));
+            this.ctx.closePath();
+        }
 
         const toX = this.x;
         const toY = this.y;
 
 
-        this.notesContent[fromX] = this.notesContent[fromX] || [];
-        this.notesContent[toX] = this.notesContent[toX] || [];
+        this.notesContent.on[fromX] = this.notesContent.on[fromX] || [];
+        this.notesContent.on[fromX].push(fromY);
 
-        this.notesContent[fromX].push(fromY);
-        this.notesContent[toX].push(toY);
+        this.notesContent.off[fromX] = this.notesContent.off[fromX] || [];
+        this.notesContent.off[fromX].push(toX - fromX);
+
+        if (toX - fromX <= 0) {
+            console.info(fromX, fromY, 'to', toX, toY, '...', toX - fromX);
+            throw new Error('Unexpected timing condition whilst rendering.')
+        }
 
         if (!this.penUp) {
-            log.debug('DRAW in colour ', this.ctx.strokeStyle);
+            log.silly('DRAW in colour ', this.ctx.strokeStyle);
             this.ctx.stroke();
         }
+
         if (this.x > this.maxX) this.maxX = this.x;
         if (this.y > this.maxY) this.maxY = this.y;
         if (this.x < this.minX) this.minX = this.x;

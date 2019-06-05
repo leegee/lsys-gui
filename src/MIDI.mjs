@@ -72,13 +72,17 @@ module.exports = class MIDI {
             player.play();
         } catch (e) {
             console.error(e);
-            throw e;
         }
     }
 
+    /**
+    @param {object} notes 
+    @param {object} notes.on note on values
+    @param {object} notes.off note off values
+     */
     create(notes, durationScaleFactor) {
 
-        durationScaleFactor = 200;
+        durationScaleFactor = 10;
 
         console.log('----------------\n', JSON.stringify(notes, {}, '    '));
         let minVelocity = 50;
@@ -86,12 +90,12 @@ module.exports = class MIDI {
         let lowestNote = 0;
         let maxNotesInChord = 0;
 
-        Object.keys(notes).forEach(index => {
-            notes[index].forEach(noteValue => {
+        Object.keys(notes.on).forEach(index => {
+            notes.on[index].forEach(noteValue => {
                 if (noteValue >= highestNote) highestNote = noteValue;
                 if (noteValue <= lowestNote) lowestNote = noteValue;
             });
-            if (notes[index].length > maxNotesInChord) maxNotesInChord = notes[index].length;
+            if (notes.on[index].length > maxNotesInChord) maxNotesInChord = notes.on[index].length;
         });
 
         const noteScaleFactor = highestNote > 127 || lowestNote < 0 ? 127 / (highestNote - lowestNote) : 1;
@@ -103,40 +107,28 @@ module.exports = class MIDI {
         const pitchOffset = Math.floor((127 / 2) - ((highestNote - lowestNote) / 2));
         console.log('PITCH OFFSET', pitchOffset);
 
-        Object.keys(notes).forEach(index => {
+        Object.keys(notes.on).forEach((startTimeIndex, arrayIndex) => {
             const chordToPlay = {};
 
-            notes[index].forEach(noteValue => {
-                const translatedNote = pitchOffset + Math.round(noteValue); // Here fit to scale
-                console.log('Created ', translatedNote);
-
-                if (chordToPlay.hasOwnProperty(translatedNote)) {
-                    chordToPlay[translatedNote].velocity++;
-                } else {
-                    chordToPlay[translatedNote] = { velocity: 1 };
-                }
-            });
-
-            console.log('chordToPlay', chordToPlay);
-            console.log('velocityScaleFactor', velocityScaleFactor);
-
-            Object.keys(chordToPlay).forEach(pitch => {
+            notes.on[startTimeIndex].forEach((noteValue, arrayIndex) => {
+                const pitch = pitchOffset + Math.round(noteValue); // Here fit to scale
                 const noteEvent = {
                     pitch,
-                    duration: 'T' + durationScaleFactor,
-                    velocity: (Object.keys(chordToPlay).length * velocityScaleFactor) + minVelocity,
-                    startTick: index * durationScaleFactor
+                    duration: 'T' + Math.round(notes.off[startTimeIndex][0] * durationScaleFactor),
+                    velocity: Math.round((Object.keys(chordToPlay).length * velocityScaleFactor) + minVelocity),
+                    startTick: Math.round(startTimeIndex * durationScaleFactor)
                 };
-                console.log('ADD NOTE', noteEvent);
+                console.log(noteEvent);
                 this.track.addEvent(new MidiWriter.NoteEvent(noteEvent));
             });
-
         });
 
+        console.log('Write');
         const writer = new MidiWriter.Writer(this.track);
         writer.saveMIDI(
             this.outputMidiPath.replace(/\.mid$/, '')
         );
+        console.log('Written');
     }
 
 
