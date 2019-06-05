@@ -160,23 +160,23 @@ const LsysRenderer = class LsysRenderer {
         let noteToX = this.x;
         const noteToY = this.y;
 
-        if (noteToX - noteFromX <= 0) {
-            console.info(noteFromX, noteFromY, 'to', noteToX, noteToY, '...', noteToX - noteFromX);
-            if (this.settings.backInTime) {
-                // throw new Error('Unexpected timing condition whilst rendering.')
-                const _ = noteFromX;
-                noteFromX = noteToX;
-                noteToX = _;
-            } else {
-                noteToX = Math.abs(noteToX);
-            }
-        }
+        // if (noteToX - noteFromX <= 0) {
+        //     console.info(JSON.stringify({ noteFromX, noteToX, fin: noteToX - noteFromX }));
+        //     if (this.settings.backInTime) {
+        //         const _ = noteFromX;
+        //         noteFromX = noteToX;
+        //         noteToX = _;
+        //     } else {
+        //         noteToX = Math.abs(noteToX);
+        //     }
+        //     console.info(JSON.stringify({ noteFromX, noteToX, fin: noteToX - noteFromX }));
+        // }
 
         this.notesContent.on[noteFromX] = this.notesContent.on[noteFromX] || [];
         this.notesContent.on[noteFromX].push(noteFromY);
 
         this.notesContent.off[noteFromX] = this.notesContent.off[noteFromX] || [];
-        this.notesContent.off[noteFromX].push(noteToX - noteFromX);
+        this.notesContent.off[noteFromX].push(Math.abs(noteToX - noteFromX));
 
         if (!this.penUp) {
             log.silly('DRAW in colour ', this.ctx.strokeStyle);

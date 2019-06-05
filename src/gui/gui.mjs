@@ -131,7 +131,7 @@ module.exports = class GUI {
                 this.settings[matchGroup[1]][matchGroup[2]] = el.value.trim();
                 log.debug('INTPUT el %o changed %s[%d] to %s', matchGroup[1], matchGroup[2], this.settings[matchGroup[1]][matchGroup[2]]);
             }
-            else if (e.type === 'checkbox') {
+            else if (el.type === 'checkbox') {
                 this.settings[el.id] = el.checked;
             }
             else {
@@ -381,6 +381,8 @@ module.exports = class GUI {
             this.settings.scale,
             this.settings.duration
         ); // this.settings.midiPort, 
+
+        this.window.alert('MIDI Created');
 
         this.elements.actionCreateMidi.value = oldButtonText;
         this.elements.actionCreateMidi.disabled = false;
