@@ -81,10 +81,8 @@ module.exports = class MIDI {
     @param {object} notes.off note off values
      */
     create(notes, durationScaleFactor) {
-
-        durationScaleFactor = 10;
-
         console.log('----------------\n', JSON.stringify(notes, {}, '    '));
+        console.log('durationScaleFactor', durationScaleFactor);
         let minVelocity = 50;
         let highestNote = 0;
         let lowestNote = 0;

@@ -21,7 +21,7 @@ module.exports = class GUI {
     _lastGenerationContent = '';
     settings = {
         // mergeDuplicates: 1,
-        duration: 48,
+        duration: 18,
         scale: 'pentatonic',
         initialNote: 50,
         canvasWidth: 1000,
