@@ -3,6 +3,7 @@
 const expect = require('chai').expect;
 
 const Lsys = require("./LsysParametric.mjs");
+const LsysRenderer = require('./GUI/LsysRenderer.mjs');
 
 // const jsdom = require("jsdom");
 // const { JSDOM } = jsdom;
@@ -151,8 +152,8 @@ test('Variable parsing', function () {
 });
 
 test('Math routines', function () {
-	equal(LsysParametric.dsin(1), 0.01745240643728351, 'sin');
-	equal(LsysParametric.dcos(1), 0.9998476951563913, 'sin');
+	equal(LsysRenderer.dsin(1), 0.01745240643728351, 'sin');
+	equal(LsysRenderer.dcos(1), 0.9998476951563913, 'sin');
 });
 
 // ## Generate content

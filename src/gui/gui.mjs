@@ -101,14 +101,9 @@ module.exports = class GUI {
 
     createListeners() {
         this.window.document.addEventListener('click', e => {
-            try {
-                if (e.target.id && this.actions[e.target.id]) {
-                    this[e.target.id]();
-                    return false;
-                }
-            } catch (err) {
-                log.trace('e=', e.target.id);
-                throw new Error(err);
+            if (e.target.id && this.actions[e.target.id]) {
+                this[e.target.id]();
+                return false;
             }
         }, {
                 passive: true
@@ -350,17 +345,17 @@ module.exports = class GUI {
 
     actionCreateMidi() {
         log.info('Enter actionCreateMidi');
-        const oldButtonText = this.createMidi.value;
-        this.createMidi.value = 'Hang on...';
-        this.createMidi.disabled = true;
+        const oldButtonText = this.elements.actionCreateMidi.value;
+        this.elements.actionCreateMidi.value = 'Hang on...';
+        this.elements.actionCreateMidi.disabled = true;
 
         this.midi.play(
-            this.lsysrenderer.notesContent,
+            this.lsysRenderer.notesContent,
             this.settings.duration
         ); // this.settings.midiPort, 
 
-        this.createMidi.value = oldButtonText;
-        this.createMidi.disabled = false;
+        this.elements.actionCreateMidi.value = oldButtonText;
+        this.elements.actionCreateMidi.disabled = false;
 
     }
 

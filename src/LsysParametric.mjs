@@ -30,14 +30,6 @@ rule p3
 const RAD = Math.PI / 180.0;
 
 module.exports = class LsysParametric {
-	static dsin(radians) {
-		return Math.sin(radians * RAD)
-	};
-
-	static dcos(radians) {
-		return Math.cos(radians * RAD)
-	};
-
 	interpolateVarsRe = /(\$\w+)/g;
 	str2reRe = /(\w+)\(([^\)]+)\)/g;
 	generation = 0;
@@ -178,8 +170,9 @@ module.exports = class LsysParametric {
 			this._applyRules();
 		}
 
-		this.options.logger.info('Call postRenderCallback', this.options.postRenderCallback(this.content));
+		this.options.logger.verbose('Call postRenderCallback', this.options.postRenderCallback(this.content));
 		this.options.postRenderCallback();
+		this.options.logger.verbose('Done  postRenderCallback');
 
 		this.options.logger.verbose('Leave generate');
 		return this;

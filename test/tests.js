@@ -40,6 +40,7 @@
 "use strict";
 const expect = require('chai').expect;
 import { LsysParametric } from "../src/LsysParametric";
+import { LsysRenderer } from './src/GUI/LsysRenderer.mjs';
 
 window.HTMLCanvasElement.prototype.getContext = function () {
 	return {
@@ -187,8 +188,8 @@ describe('Constructor', () => {
 
 describe('Math routines', () => {
 	it('dsin', () => {
-		expect(LsysParametric.dsin(1)).to.equal(0.01745240643728351, 'sin');
-		expect(LsysParametric.dcos(1)).to.equal(0.9998476951563913, 'sin');
+		expect(LsysRenderer.dsin(1)).to.equal(0.01745240643728351, 'sin');
+		expect(LsysRenderer.dcos(1)).to.equal(0.9998476951563913, 'sin');
 	});
 });
 

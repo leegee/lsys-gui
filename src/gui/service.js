@@ -9,10 +9,11 @@ const start = (args) => {
         ...args,
         logger: log,
         // postRenderCallback: () => {
-        //     process.send({ cmd: 'call', methodName: 'doneGeneration', content: lsys.content });
+        //     process.send({ cmd: 'call', methodName: 'serviceDoneGeneration', content: lsys.content });
         // }
     });
     lsys.generate(args.totalGenerations);
+    log.info('Service.start finished, calling parent.lsysDone');
     process.send({ cmd: 'call', methodName: 'lsysDone', content: lsys.content });
 }
 
