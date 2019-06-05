@@ -6,6 +6,7 @@ const { fork } = require('child_process');
 const electron = require('electron');
 
 const LsysParametric = require('../LsysParametric.mjs');
+const LsysRenderer = require('./LsysRenderer.mjs');
 const MIDI = require('../MIDI.mjs');
 const log = require('./electron-log.mjs');
 const Presets = require('./Presets.mjs');
@@ -14,9 +15,10 @@ const packageJson = require('../../package.json');
 module.exports = class GUI {
     logFilePath = log.findLogPath();
     midi = new MIDI();
+    canvas = null;
+    lsysRenderer = null;
     currentViewName = 'viewMain';
     _lastGenerationContent = '';
-    notesContent = [];
     settings = {
         // mergeDuplicates: 1,
         duration: 48,
@@ -50,7 +52,7 @@ module.exports = class GUI {
             this[key] = options[key];
         });
 
-        const { width, height } = electron.screen.getPrimaryDisplay().workAreaSize;
+        const { width, height } = electron.remote.screen.getPrimaryDisplay().workAreaSize;
         this.settings.canvasWidth = width;
         this.settings.canvasHeight = height;
 
@@ -105,7 +107,7 @@ module.exports = class GUI {
                     return false;
                 }
             } catch (err) {
-                log.error('e=', e.target.id);
+                log.trace('e=', e.target.id);
                 throw new Error(err);
             }
         }, {
@@ -255,6 +257,7 @@ module.exports = class GUI {
                     throw new Error((msg.title || 'NO TITLE' + ' ' + msg.name || 'NO_ERROR_NAME') + ' ' + (msg.message || 'NO_ERROR_MESSAGE'));
                 case 'call':
                     try {
+                        log.log('Try to call', msg.methodName);
                         this[msg.methodName](msg);
                     } catch (e) {
                         if (e.name === 'TypeError') {
@@ -326,10 +329,8 @@ module.exports = class GUI {
         this.elements.actionCreateMidi.disabled = true;
 
         this.canvas = this.window.document.createElement('canvas');
-        this.ctx = this.canvas.getContext("2d");
-        this.ctx.translate(this.canvas.width / 2, this.canvas.height / 2); // Translate context to center of canvas:
 
-        this.setCanvas();
+        this.lsysRenderer = new LsysRenderer(this.settings, this.canvas);
 
         this.elements.canvases.insertBefore(this.canvas, this.elements.canvases.firstChild);
         this.canvas.scrollIntoView({
@@ -337,43 +338,30 @@ module.exports = class GUI {
             block: "end"
         });
 
-        this.x = this.maxX = this.minX = Number(this.settings.initX);
-        this.y = this.maxY = this.minY = Number(this.settings.initY);
-
-        this.preparedColours = [];
-        for (let i = 0; i < this.settings.colours.length; i++) {
-            this.preparedColours[i] = this.hexAndOpacityToRgba(this.settings.colours[i], this.settings.opacities[i])
-        }
-        this.lsysSetColour(0);
-
         const settings = {
             start: this.settings.start,
             variables: this.settings.variables,
             rules: this.settings.rules,
             totalGenerations: totalGenerations || this.settings.totalGenerations
         }
-        log.silly('Call Lsys with', settings);
+        log.silly('Call service to start Lsys with', settings);
         this.service('start', settings);
     }
 
     actionCreateMidi() {
-        this.midi.sendC(this.settings.midiPort);
-        this.midi.writeFile(this.notesContent);
-        // const oldValue = this.createMidi.value;
-        // this.createMidi.value = 'Hang on...';
-        // this.createMidi.disabled = true;
-        // fetch('/cgi-bin/fractal_plant_chords.cgi', {
-        //     duration: this.settings.duration,
-        //     angle: this.settings.angle,
-        //     scale: this.settings.scale
-        // }).then(() => {
-        //     this.playSound("/cgi-output/cgi.midi");
-        //     this.createMidi.value = oldValue;
-        //     this.createMidi.disabled = false;
-        // }).catch(e => {
-        //     log.error(e);
-        //     alert('Failure :(');
-        // });
+        log.info('Enter actionCreateMidi');
+        const oldButtonText = this.createMidi.value;
+        this.createMidi.value = 'Hang on...';
+        this.createMidi.disabled = true;
+
+        this.midi.play(
+            this.lsysrenderer.notesContent,
+            this.settings.duration
+        ); // this.settings.midiPort, 
+
+        this.createMidi.value = oldButtonText;
+        this.createMidi.disabled = false;
+
     }
 
     openElementInNewWindow(canvas) {
@@ -395,189 +383,34 @@ module.exports = class GUI {
         });
     }
 
-    lsysResize(content) {
-        log.verbose('Resize Min: %d , %d\nMax: %d , %d', this.minX, this.minY, this.maxX, this.maxY);
-        const wi = (this.minX < 0) ?
-            Math.abs(this.minX) + Math.abs(this.maxX) : this.maxX - this.minX;
-        const hi = (this.minY < 0) ?
-            Math.abs(this.minY) + Math.abs(this.maxY) : this.maxY - this.minY;
-        if (this.maxY <= 0) {
-            throw new RangeError('maxY out of bounds');
-        }
-        if (this.maxX <= 0) {
-            throw new RangeError('maxX out of bounds');
-        }
-
-        const sx = this.canvas.width / wi;
-        const sy = this.canvas.height / hi;
-
-        if (sx !== 0 && sy !== 0) {
-            this.setCanvas();
-
-            this.ctx.scale(sx, sy);
-
-            this.x = Number(this.settings.initX) || 0; // this.settings.turtleStepX|| 0;
-            this.y = Number(this.settings.initY) || this.canvas.height / 2;
-            this.y -= this.minY;
-
-            this.lsysRender(content);
-            log.verbose('Resized via scale %d, %d', sx, sy);
-        }
-
-        log.verbose('Leave resize');
-    };
-
-    lsysRender(content) {
-        let note = Number(this.settings.initialNote || 0.5) * 256;
-        let dir = 0;
-        const states = [];
-
-        this.stepped = 0;
-
-        // PRODUCTION RULES:
-        for (let i = 0; i < content.length; i++) {
-            let draw = true;
-            this.penUp = false;
-            const atom = content.charAt(i).toLowerCase();
-
-            log.silly('Do content atom %d, (%s)', i, atom);
-
-            switch (atom) {
-                case 'f': // Forwards
-                    break;
-                case 'c': // Set colour
-                    const colourCode = content.charAt(++i);
-                    const index = parseInt(colourCode, 10) % this.settings.colours.length;
-                    log.silly('Got colour code (%s) made index', colourCode, index);
-                    this.lsysSetColour(index);
-                    draw = false;
-                    break;
-                case '+': // Right
-                    dir += Number(this.settings.angle);
-                    break;
-                case '-': // Left
-                    dir -= Number(this.settings.angle);
-                    break;
-                case '[': // Start a branch
-                    states.push([dir, this.x, this.y, this.colour, this.stepped]);
-                    draw = false;
-                    break;
-                // End a branch
-                case ']':
-                    const state = states.pop();
-                    dir = state[0];
-                    this.x = state[1];
-                    this.y = state[2];
-                    this.colour = state[3];
-                    this.stepped = state[4];
-                    draw = true;
-                    break;
-            };
-
-            if (draw) {
-                this.lsysTurtleGraph(dir);
-                console.info('DRAW', note, dir);
-                note += Number(dir);
-                this.notesContent[this.stepped] = this.notesContent[this.stepped] || [];
-                this.notesContent[this.stepped].push(note);
-                this.stepped++;
-            }
-        }
-    }
-
-    lsysTurtleGraph(dir) {
-        log.silly('Move dir (%s) from x (%s) y (%s)', dir, this.x, this.y);
-
-        this.ctx.beginPath();
-        if (this.settings.generationsScaleLines > 0) {
-            this.ctx.lineWidth = this.settings.lineWidth;
-        }
-        else if (this.settings.lineWidth) {
-            this.ctx.lineWidth = this.settings.lineWidth;
-        }
-
-        this.ctx.moveTo(this.x, this.y);
-        this.x += (LsysParametric.dcos(dir) * this.settings.turtleStepX);
-        this.y += (LsysParametric.dsin(dir) * this.settings.turtleStepY);
-
-        this.x += this.settings.xoffset;
-        this.y += this.settings.yoffset;
-
-        this.ctx.lineTo(this.x, this.y);
-        this.ctx.closePath();
-
-        if (!this.penUp) {
-            log.debug('DRAW in colour ', this.ctx.strokeStyle);
-            this.ctx.stroke();
-        }
-        if (this.x > this.maxX) this.maxX = this.x;
-        if (this.y > this.maxY) this.maxY = this.y;
-        if (this.x < this.minX) this.minX = this.x;
-        if (this.y < this.minY) this.minY = this.y;
-
-        log.silly('Moved to x (%s) y (%s)', this.x, this.y);
-    };
-
-    setWidth(px) {
-        this.ctx.lineWidth = px;
-    };
-
-    lsysFinalise() {
-        log.verbose('Enter lsysFinalise');
-        if (this.settings.finally && typeof this.settings.finally === 'function') {
-            log.verbose('Call finally');
-            this.settings.finally.call(this);
-        }
-        log.verbose('Leave lsysFinalise');
-    };
-
-    // Thanks https://stackoverflow.com/questions/5623838/rgb-to-hex-and-hex-to-rgb
-    hexAndOpacityToRgba(hex, opacity) {
-        var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-        return result ? 'rgb(' +
-            parseInt(result[1], 16) + ',' +
-            parseInt(result[2], 16) + ',' +
-            parseInt(result[3], 16) + ',' +
-            opacity +
-            ')' : null;
-    }
-
-    lsysSetColour(colourIndex) {
-        this.colour = this.preparedColours[colourIndex];
-        log.silly('Set colour to index (%d): ', colourIndex, this.colour, this.settings.colours);
-        this.ctx.strokeStyle = this.colour;
-    }
-
-    setCanvas() {
-        this.canvas.width = this.settings.canvasWidth;
-        this.canvas.height = this.settings.canvasHeight;
-        this.ctx.fillStyle = this.settings.canvasBackgroundColour;
-        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+    serviceDoneGeneration(content) {
+        log.info('###########################################\n', content);
+        const currentGeneration = currentGeneration.substring(
+            this._lastGenerationContent.length
+        );
+        this.lsysRenderer.resize(currentGeneration);
+        this.lsysRenderer.render(currentGeneration);
+        this._lastGenerationContent = currentGeneration;
+        this.window.alert('continue');
     }
 
     lsysDone({ content }) {
-        log.verbose('Enter lsysDone with %d byes of content', content.length);
+        log.info('Enter lsysDone with %d byes of content', content.length);
         this.window.document.getElementById('contentDisplay').value = content;
         this.window.document.body.style.cursor = 'default';
         this.elements.actionGenerate.value = this._oldActionGenerate;
         this.elements.actionGenerate.disabled = false;
         this.elements.actionCreateMidi.disabled = false;
 
-        this.lsysRender(content);
-        this.lsysResize(content);
-
-        this.lsysFinalise();
+        log.info('Call lsysRender');
+        this.lsysRenderer.render(content);
+        log.info('Call resize');
+        this.lsysRenderer.resize(content);
+        log.info('Call lsysRender again');
+        this.lsysRenderer.lsysFinalise();
+        log.info('Attach click handler');
         this.canvas.addEventListener('click', (e) => this.openElementInNewWindow(e.target));
+        log.info('FINISHED lsysDone');
     }
 
-    doneGeneration(content) {
-        log.info('###########################################\n', content);
-        const currentGeneration = currentGeneration.substring(
-            this._lastGenerationContent.length
-        );
-        this.lsysResize(currentGeneration);
-        this.lsysRender(currentGeneration);
-        this._lastGenerationContent = currentGeneration;
-        this.window.alert('continue');
-    }
 }
