@@ -14,7 +14,7 @@ const packageJson = require('../../package.json');
 
 module.exports = class GUI {
     logFilePath = log.findLogPath();
-    midiFilePath = 'output.mid'; 
+    midiFilePath = 'output.mid';
     midi = null;
     canvas = null;
     lsysRenderer = null;
@@ -22,7 +22,7 @@ module.exports = class GUI {
     _lastGenerationContent = '';
     settings = {
         // mergeDuplicates: 1,
-        duration: 5,
+        duration: 25,
         scale: 'pentatonic',
         initialNote: 50,
         canvasWidth: 1000,
@@ -59,7 +59,10 @@ module.exports = class GUI {
         this.settings.canvasHeight = height;
 
         this.win = electron.remote.BrowserWindow.getFocusedWindow();
-        this.midi = new MIDI(this.midiFilePath);
+        this.midi = new MIDI({
+            outputMidiPath: this.midiFilePath,
+            window
+        });
     }
 
     init() {
@@ -360,7 +363,7 @@ module.exports = class GUI {
             this.lsysRenderer.notesContent,
             this.settings.scale,
             this.settings.duration
-        ); 
+        );
         log.silly('Leave actionCreateMidi');
     }
 

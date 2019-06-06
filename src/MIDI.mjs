@@ -19,17 +19,14 @@ module.exports = class MIDI {
     outputToUse = 1;
     usePorts = {};
 
-    constructor(outputMidiPath) {
-        this.outputMidiPath = outputMidiPath;
+    constructor(options) {
         JZZ.synth.Tiny.register('Web Audio');
         this.player = new JZZ.gui.Player({
             at: 'player',
             ports: ['Web Audio']
         });
 
-        // Object.keys(options).forEach(option => this[option] = options[option]);
-        this.navigator = JZZ;
-        this.track = new MidiWriter.Track();
+        Object.keys(options).forEach(option => this[option] = options[option]);
     }
 
     play(notes, scaleName, duration) {
@@ -44,7 +41,6 @@ module.exports = class MIDI {
         }
 
         const data = fs.readFileSync(this.outputMidiPath, 'binary');
-
         var smf = new JZZ.MIDI.SMF(data);
         this.player.stop();
         this.player.load(smf);
@@ -63,6 +59,8 @@ module.exports = class MIDI {
         let highestNote = 0;
         let lowestNote = 0;
         let maxNotesInChord = 0;
+
+        this.track = new MidiWriter.Track();
 
         Object.keys(notes.on).forEach(index => {
             notes.on[index].forEach(noteValue => {
