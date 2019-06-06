@@ -407,7 +407,7 @@ module.exports = class GUI {
 
         this.lsysRenderer.render(content);
         this.lsysRenderer.resize(content);
-        this.lsysRenderer.lsysFinalise();
+        this.lsysRenderer.finalise();
         this.canvas.addEventListener('click', (e) => this.openElementInNewWindow(e.target));
         this.actionCreateMidi();
         log.silly('FINISHED lsysDone');

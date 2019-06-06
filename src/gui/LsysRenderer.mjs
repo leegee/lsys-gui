@@ -34,7 +34,7 @@ const LsysRenderer = class LsysRenderer {
         this.y = this.maxY = this.minY = Number(this.settings.initY);
 
         for (let i = 0; i < this.settings.colours.length; i++) {
-            this.preparedColours[i] = this.lsysHexAndOpacityToRgba(this.settings.colours[i], this.settings.opacities[i])
+            this.preparedColours[i] = this.hexAndOpacityToRgba(this.settings.colours[i], this.settings.opacities[i])
         }
         this.setColour(0);
         this.setUpCanvas();
@@ -179,21 +179,21 @@ const LsysRenderer = class LsysRenderer {
         log.silly('Moved to x (%s) y (%s)', this.x, this.y);
     };
 
-    lsysSetWidth(px) {
+    setWidth(px) {
         this.ctx.lineWidth = px;
     };
 
-    lsysFinalise() {
-        log.verbose('Enter lsysFinalise');
+    finalise() {
+        log.verbose('Enter finalise');
         if (this.settings.finally && typeof this.settings.finally === 'function') {
             log.verbose('Call finally');
             this.settings.finally.call(this);
         }
-        log.verbose('Leave lsysFinalise');
+        log.verbose('Leave finalise');
     };
 
     // Thanks https://stackoverflow.com/questions/5623838/rgb-to-hex-and-hex-to-rgb
-    lsysHexAndOpacityToRgba(hex, opacity) {
+    hexAndOpacityToRgba(hex, opacity) {
         var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
         return result ? 'rgb(' +
             parseInt(result[1], 16) + ',' +

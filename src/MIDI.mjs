@@ -81,6 +81,14 @@ module.exports = class MIDI {
         const pitchOffset = Math.floor((127 / 2) - ((highestNote - lowestNote) / 2));
         log.silly('PITCH OFFSET', pitchOffset);
 
+        let timeOffset = Math.min(...Object.keys(notes.on));
+        if (timeOffset < 0) {
+            timeOffset = Math.ceil(Math.abs(timeOffset));
+        } else {
+            timeOffset = 0;
+        }
+        log.silly('Time Offset', timeOffset);
+
         Object.keys(notes.on).forEach((startTimeIndex, arrayIndex) => {
             const chordToPlay = {};
 
@@ -89,13 +97,13 @@ module.exports = class MIDI {
                 const noteIndex = Math.abs(pitch) % scale.length;
                 const note = scale[noteIndex];
                 const octave = Math.round(Math.abs(pitch) / (127 / 8));
-                log.silly('---------------', pitchOffset, pitch, noteIndex, note, octave);
+                log.silly({ startTimeIndex, pitchOffset, pitch, noteIndex, note, octave, durationScaleFactor, timeOffset });
 
                 const noteEvent = {
                     pitch: note + octave,
-                    duration: 'T' + Math.round(notes.off[startTimeIndex][0] * durationScaleFactor),
-                    velocity: Math.round((Object.keys(chordToPlay).length * velocityScaleFactor) + minVelocity),
-                    startTick: Math.round(startTimeIndex * durationScaleFactor)
+                    duration: 'T' + Math.ceil((notes.off[startTimeIndex][0] + timeOffset) * durationScaleFactor),
+                    velocity: Math.ceil((Object.keys(chordToPlay).length * velocityScaleFactor) + minVelocity),
+                    startTick: Math.ceil((timeOffset + startTimeIndex) * durationScaleFactor)
                 };
                 log.silly(noteEvent);
 
