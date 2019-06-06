@@ -1,5 +1,5 @@
 {
-	"name": "commonjs-play-lsystems",
+	"name": "lsys-electron",
 	"version": "1.0.1",
 	"description": "L-system Tools For Sound",
 	"scripts": {
