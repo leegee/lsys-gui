@@ -51,6 +51,9 @@
                                 </label>
                             </p>
                         </fieldset>
+
+                        <input type='button' id='actionGenerate' value='Generate image' />
+
                     </div><!-- ends .col -->
 
                     <div class='col'>
@@ -66,14 +69,6 @@
                                 <label>Initial note <input type='range' min=0 max=1 step=0.01 value=.5 id='initialNote'>
                                 </label>
                             </p>
-
-                            <!--
-                            <label>Ports
-                                <ul id='midiPorts'></ul>
-                            </label>
-                        -->
-
-                            <div id=player></div>
 
                             <p>
                                 <label>Scale
@@ -92,22 +87,15 @@
                             </p>
                         </fieldset>
 
-                        </fieldset>
-                        <label>Output
+                        <fieldset>
+                            <legend>Output</legend>
                             <textarea id='contentDisplay'></textarea>
-                        </label>
                         </fieldset>
+
+                        <div id=player></div>
+
                     </div><!-- ends col -->
                 </div><!-- ends row -->
-
-                <div class='row'>
-                    <div class='col'>
-                        <input type='button' id='actionGenerate' value='Generate image' />
-                    </div>
-                    <div class='col'>
-                        <input type='button' id='actionCreateMidi' value='Generate MIDI from image' />
-                    </div>
-                </div>
             </form>
 
             <div id='canvases'></div>

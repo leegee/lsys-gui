@@ -14,7 +14,7 @@ const packageJson = require('../../package.json');
 
 module.exports = class GUI {
     logFilePath = log.findLogPath();
-    midiFilePath = 'output.mid'; // path.resolve('output.mid');
+    midiFilePath = 'output.mid'; 
     midi = null;
     canvas = null;
     lsysRenderer = null;
@@ -63,21 +63,6 @@ module.exports = class GUI {
     }
 
     init() {
-        this.midi.activate({
-            log,
-            navigator: this.navigator,
-            window: this.window
-        }).then(() => {
-            /*
-            this.midi.outputs.forEach((output, index) => {
-                const el = this.window.document.createElement('li');
-                el.innerHTML = '<label><input type="checkbox" checked class="midiPort" data-index="' + index + '">' + output.name + '</label>';
-                this.elements.midiPorts.appendChild(el);
-                el.addEventListener('click', e => this.midi.togglePort(e.target.dataset.index, e.target.checked));
-            });
-            */
-        });
-
         this.window.document.title += ' v' + packageJson.version;
         this.createMenu();
 
@@ -348,7 +333,6 @@ module.exports = class GUI {
         this.window.document.body.style.cursor = 'progress';
         this.elements.actionGenerate.value = 'Generating...';
         this.elements.actionGenerate.disabled = true;
-        this.elements.actionCreateMidi.disabled = true;
 
         this.canvas = this.window.document.createElement('canvas');
 
@@ -371,22 +355,13 @@ module.exports = class GUI {
     }
 
     actionCreateMidi() {
-        log.info('Enter actionCreateMidi');
-        const oldButtonText = this.elements.actionCreateMidi.value;
-        this.elements.actionCreateMidi.value = 'Hang on...';
-        this.elements.actionCreateMidi.disabled = true;
-
+        log.silly('Enter actionCreateMidi');
         this.midi.play(
             this.lsysRenderer.notesContent,
             this.settings.scale,
             this.settings.duration
-        ); // this.settings.midiPort, 
-
-        this.window.alert('MIDI Created');
-
-        this.elements.actionCreateMidi.value = oldButtonText;
-        this.elements.actionCreateMidi.disabled = false;
-
+        ); 
+        log.silly('Leave actionCreateMidi');
     }
 
     openElementInNewWindow(canvas) {
@@ -394,8 +369,8 @@ module.exports = class GUI {
         const title = this.settings.totalGenerations + ' generations of ' + this.settings.rules;
         let win = new electron.remote.BrowserWindow({
             parent: this.win,
-            // modal: true,
             show: false,
+            titleBar: false,
             title,
             backgroundColor: '#000000',
             width: this.appConfig.gui.openInNewWindow.width,
@@ -418,7 +393,6 @@ module.exports = class GUI {
         this.lsysRenderer.resize(currentGeneration);
         this.lsysRenderer.render(currentGeneration);
         this._lastGenerationContent = currentGeneration;
-        this.window.alert('continue');
     }
 
     lsysDone({ content }) {
@@ -427,12 +401,12 @@ module.exports = class GUI {
         this.window.document.body.style.cursor = 'default';
         this.elements.actionGenerate.value = this._oldActionGenerate;
         this.elements.actionGenerate.disabled = false;
-        this.elements.actionCreateMidi.disabled = false;
 
         this.lsysRenderer.render(content);
         this.lsysRenderer.resize(content);
         this.lsysRenderer.lsysFinalise();
         this.canvas.addEventListener('click', (e) => this.openElementInNewWindow(e.target));
+        this.actionCreateMidi();
         log.silly('FINISHED lsysDone');
     }
 

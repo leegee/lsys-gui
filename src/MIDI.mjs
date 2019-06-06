@@ -1,6 +1,5 @@
 const fs = require('fs');
 
-
 const MidiWriter = require('midi-writer-js');
 const JZZ = require('jzz');
 require('jzz-midi-smf')(JZZ);
@@ -8,13 +7,13 @@ require('jzz-gui-player')(JZZ);
 require('jzz-synth-tiny')(JZZ);
 require('jazz-midi-electron')();
 
+const log = require('./gui/electron-log.mjs');
 
 module.exports = class MIDI {
     static scales = {
         pentatonic: ['E', 'G', 'A', 'B', 'D']
     };
 
-    ready = false;
     options = {};
     outputs = [];
     outputToUse = 1;
@@ -23,40 +22,14 @@ module.exports = class MIDI {
     constructor(outputMidiPath) {
         this.outputMidiPath = outputMidiPath;
         JZZ.synth.Tiny.register('Web Audio');
-        this.player = new JZZ.gui.Player('player');
-    }
+        this.player = new JZZ.gui.Player({
+            at: 'player',
+            ports: ['Web Audio']
+        });
 
-    async activate(options) {
-        Object.keys(options).forEach(option => this[option] = options[option]);
+        // Object.keys(options).forEach(option => this[option] = options[option]);
         this.navigator = JZZ;
         this.track = new MidiWriter.Track();
-
-        // const access = await this.navigator.requestMIDIAccess();
-        // const outputs = access.outputs.values();
-        // let index = 0;
-
-        // for (let output = outputs.next();
-        //     output && !output.done;
-        //     output = outputs.next()
-        // ) {
-        //     output.value.open();
-        //     this.outputs.push(
-        //         await output.value
-        //     );
-        //     this.usePorts[index++] = true;
-        // }
-
-        // access.onstatechange = (e) => {
-        //     this.log.log('MIDI', e.port.name, e.port.manufacturer, e.port.state);
-        // };
-
-        // this.sendC();
-
-        this.ready = true;
-    }
-
-    changeMidiPort(port, state) {
-        this.usePorts[port] = state;
     }
 
     play(notes, scaleName, duration) {
