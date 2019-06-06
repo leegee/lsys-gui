@@ -1,4 +1,4 @@
-const log = require('./electron-log.mjs');
+const log = require('./logger.mjs');
 
 const RAD = Math.PI / 180.0;
 
@@ -75,11 +75,11 @@ const LsysRenderer = class LsysRenderer {
     render(content) {
         let dir = 0;
         const states = [];
+        this.noteTick = 0;
         this.notesContent = {
             on: {},
             off: {}
         };
-
         this.stepped = 0;
 
         // PRODUCTION RULES:
@@ -124,8 +124,26 @@ const LsysRenderer = class LsysRenderer {
 
             if (draw) {
                 this.turtleGraph(dir);
+                this.addNotes(dir);
                 this.stepped++;
             }
+        }
+    }
+
+    addNotes(dir) {
+        const startTick = this.noteTick + Math.abs(LsysRenderer.dcos(dir)); // Only move fowards
+        const pitchIndex = this.y + LsysRenderer.dsin(dir);
+        const duration = startTick - this.noteTick;
+        this.noteTick += duration;
+
+        log.silly({ startTick, noteTick: this.noteTick, dir, duration, pitchIndex });
+
+        if (!this.penUp) {
+            this.notesContent.on[startTick] = this.notesContent.on[startTick] || [];
+            this.notesContent.off[startTick] = this.notesContent.off[startTick] || [];
+
+            this.notesContent.on[startTick].push(pitchIndex);
+            this.notesContent.off[startTick].push(duration);
         }
     }
 
@@ -134,39 +152,24 @@ const LsysRenderer = class LsysRenderer {
 
         if (!this.penUp) {
             this.ctx.beginPath();
-            if (this.settings.generationsScaleLines > 0) {
-                this.ctx.lineWidth = this.settings.lineWidth;
-            }
-            else if (this.settings.lineWidth) {
-                this.ctx.lineWidth = this.settings.lineWidth;
-            }
+            // if (this.settings.generationsScaleLines > 0) {
+            // this.ctx.lineWidth = this.settings.lineWidth; // * (totalGenerations - currentGenerationNumber);
+            // }
+            // else if (this.settings.lineWidth) {
+            this.ctx.lineWidth = this.settings.lineWidth;
+            // }
             this.ctx.moveTo(this.x, this.y);
         }
-
-        let noteFromX = this.x;
-        const noteFromY = this.y;
 
         this.x += (LsysRenderer.dcos(dir) * this.settings.turtleStepX);
         this.y += (LsysRenderer.dsin(dir) * this.settings.turtleStepY);
 
-        this.x += this.settings.xoffset;
-        this.y += this.settings.yoffset;
+        // this.x += this.settings.xoffset;
+        // this.y += this.settings.yoffset;
 
         if (!this.penUp) {
             this.ctx.lineTo(Math.round(this.x), Math.round(this.y));
             this.ctx.closePath();
-        }
-
-        let noteToX = this.x;
-        const noteToY = this.y;
-
-        this.notesContent.on[noteFromX] = this.notesContent.on[noteFromX] || [];
-        this.notesContent.on[noteFromX].push(noteFromY);
-
-        this.notesContent.off[noteFromX] = this.notesContent.off[noteFromX] || [];
-        this.notesContent.off[noteFromX].push(Math.abs(noteToX - noteFromX));
-
-        if (!this.penUp) {
             log.silly('DRAW in colour ', this.ctx.strokeStyle);
             this.ctx.stroke();
         }

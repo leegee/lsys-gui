@@ -5,6 +5,7 @@
 	"scripts": {
 		"start": "cross-env LOG_LEVEL=warn electron src/gui/index.js",
 		"dev": "cross-env LOG_LEVEL=silly DEV=true electron src/gui/index.js",
+		"x": "cross-env LOG_LEVEL=info DEV=true electron src/gui/index.js",
 		"test": "mocha -r jsdom-global/register  src/**/*.spec.js"
 	},
 	"keywords": [

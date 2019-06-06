@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const log = require('./electron-log.mjs');
+const log = require('./logger.mjs');
 const LsysParametric = require('../LsysParametric.mjs');
 
 const start = (args) => {

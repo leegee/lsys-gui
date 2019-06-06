@@ -8,7 +8,7 @@ require('jzz-synth-tiny')(JZZ);
 require('jzz-synth-osc')(JZZ);
 require('jazz-midi-electron')();
 
-const log = require('./gui/electron-log.mjs');
+const log = require('./gui/logger.mjs');
 
 module.exports = class MIDI {
     static scales = {
