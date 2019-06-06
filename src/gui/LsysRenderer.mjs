@@ -160,18 +160,6 @@ const LsysRenderer = class LsysRenderer {
         let noteToX = this.x;
         const noteToY = this.y;
 
-        // if (noteToX - noteFromX <= 0) {
-        //     console.info(JSON.stringify({ noteFromX, noteToX, fin: noteToX - noteFromX }));
-        //     if (this.settings.backInTime) {
-        //         const _ = noteFromX;
-        //         noteFromX = noteToX;
-        //         noteToX = _;
-        //     } else {
-        //         noteToX = Math.abs(noteToX);
-        //     }
-        //     console.info(JSON.stringify({ noteFromX, noteToX, fin: noteToX - noteFromX }));
-        // }
-
         this.notesContent.on[noteFromX] = this.notesContent.on[noteFromX] || [];
         this.notesContent.on[noteFromX].push(noteFromY);
 
