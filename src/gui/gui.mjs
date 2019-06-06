@@ -24,7 +24,7 @@ module.exports = class GUI {
         // mergeDuplicates: 1,
         duration: 25,
         scale: 'pentatonic',
-        initialNote: 50,
+        initialNote: 64,
         canvasWidth: 1000,
         canvasHeight: 800,
         angle: 30,
