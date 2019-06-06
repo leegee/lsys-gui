@@ -5,6 +5,7 @@ const JZZ = require('jzz');
 require('jzz-midi-smf')(JZZ);
 require('jzz-gui-player')(JZZ);
 require('jzz-synth-tiny')(JZZ);
+require('jzz-synth-osc')(JZZ);
 require('jazz-midi-electron')();
 
 const log = require('./gui/electron-log.mjs');
@@ -21,9 +22,10 @@ module.exports = class MIDI {
 
     constructor(options) {
         JZZ.synth.Tiny.register('Web Audio');
+        JZZ.synth.OSC.register('OSC');
         this.player = new JZZ.gui.Player({
             at: 'player',
-            ports: ['Web Audio']
+            ports: ['OSC', 'Web Audio']
         });
 
         Object.keys(options).forEach(option => this[option] = options[option]);
