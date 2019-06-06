@@ -14,7 +14,7 @@ const packageJson = require('../../package.json');
 
 module.exports = class GUI {
     logFilePath = log.findLogPath();
-    midiFilePath = path.resolve('output.mid');
+    midiFilePath = 'output.mid'; // path.resolve('output.mid');
     midi = null;
     canvas = null;
     lsysRenderer = null;

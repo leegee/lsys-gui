@@ -1,9 +1,13 @@
 const fs = require('fs');
 
+
 const MidiWriter = require('midi-writer-js');
 const JZZ = require('jzz');
-require('jzz-synth-osc')(JZZ);
 require('jzz-midi-smf')(JZZ);
+require('jzz-gui-player')(JZZ);
+require('jzz-synth-tiny')(JZZ);
+require('jazz-midi-electron')();
+
 
 module.exports = class MIDI {
     static scales = {
@@ -18,6 +22,8 @@ module.exports = class MIDI {
 
     constructor(outputMidiPath) {
         this.outputMidiPath = outputMidiPath;
+        JZZ.synth.Tiny.register('Web Audio');
+        this.player = new JZZ.gui.Player('player');
     }
 
     async activate(options) {
@@ -53,20 +59,6 @@ module.exports = class MIDI {
         this.usePorts[port] = state;
     }
 
-    sendC() {
-        this.log.info('SEND');
-        // const  output = this.outputs.get(portID);
-        Object.keys(this.usePorts).forEach(portIndex => {
-            if (this.usePorts[portIndex]) {
-                this.log.info('SEND ON MIDI PORT', portIndex);
-                const output = this.outputs[portIndex];
-                console.log(output);
-                output.send([0x90, 60, 0x7f]);    // note on, middle C, full velocity
-                output.send([0x80, 60, 0x40], this.window.performance.now() + 1000.0); // off
-            }
-        });
-    }
-
     play(notes, scaleName, duration) {
         if (!MIDI.scales.hasOwnProperty(scaleName)) {
             throw new TypeError('Unknown scale, ' + scaleName);
@@ -74,16 +66,16 @@ module.exports = class MIDI {
 
         this.create(notes, MIDI.scales[scaleName], duration);
 
-        console.log('this.outputMidiPath', this.outputMidiPath);
-        try {
-            const data = fs.readFileSync(this.outputMidiPath, 'binary');
-            const smf = new JZZ.MIDI.SMF(data);
-            const player = smf.player();
-            // player.connect(JZZ.synth.Tiny());
-            player.play();
-        } catch (e) {
-            console.error(e);
+        if (!fs.existsSync(this.outputMidiPath)) {
+            throw new Error('No such file', this.outputMidiPath);
         }
+
+        const data = fs.readFileSync(this.outputMidiPath, 'binary');
+
+        var smf = new JZZ.MIDI.SMF(data);
+        this.player.stop();
+        this.player.load(smf);
+        this.player.play();
     }
 
     /**
@@ -92,8 +84,8 @@ module.exports = class MIDI {
     @param {object} notes.off note off values
      */
     create(notes, scale, durationScaleFactor) {
-        console.log('----------------\n', JSON.stringify(notes, {}, '    '));
-        console.log('durationScaleFactor', durationScaleFactor);
+        log.silly('----------------\n', JSON.stringify(notes, {}, '    '));
+        log.silly('durationScaleFactor', durationScaleFactor);
         let minVelocity = 50;
         let highestNote = 0;
         let lowestNote = 0;
@@ -108,13 +100,13 @@ module.exports = class MIDI {
         });
 
         const noteScaleFactor = highestNote > 127 || lowestNote < 0 ? 127 / (highestNote - lowestNote) : 1;
-        console.log('NOTE lo/hi/factor: ', lowestNote, highestNote, noteScaleFactor);
+        log.silly('NOTE lo/hi/factor: ', lowestNote, highestNote, noteScaleFactor);
 
         const velocityScaleFactor = 127 / (127 - minVelocity);
-        console.log('VELOCITY min/max notes/factor', minVelocity, maxNotesInChord, velocityScaleFactor);
+        log.silly('VELOCITY min/max notes/factor', minVelocity, maxNotesInChord, velocityScaleFactor);
 
         const pitchOffset = Math.floor((127 / 2) - ((highestNote - lowestNote) / 2));
-        console.log('PITCH OFFSET', pitchOffset);
+        log.silly('PITCH OFFSET', pitchOffset);
 
         Object.keys(notes.on).forEach((startTimeIndex, arrayIndex) => {
             const chordToPlay = {};
@@ -124,7 +116,7 @@ module.exports = class MIDI {
                 const noteIndex = Math.abs(pitch) % scale.length;
                 const note = scale[noteIndex];
                 const octave = Math.round(Math.abs(pitch) / (127 / 8));
-                console.log('---------------', pitchOffset, pitch, noteIndex, note, octave);
+                log.silly('---------------', pitchOffset, pitch, noteIndex, note, octave);
 
                 const noteEvent = {
                     pitch: note + octave,
@@ -132,22 +124,21 @@ module.exports = class MIDI {
                     velocity: Math.round((Object.keys(chordToPlay).length * velocityScaleFactor) + minVelocity),
                     startTick: Math.round(startTimeIndex * durationScaleFactor)
                 };
-                console.log(noteEvent);
+                log.silly(noteEvent);
 
                 if (pitch <= 127) {
                     this.track.addEvent(new MidiWriter.NoteEvent(noteEvent));
                 } else {
-                    console.warn('NOTE OUT OF BOUNDS');
+                    log.warn('NOTE OUT OF BOUNDS');
                 }
             });
         });
 
-        console.log('Write');
+        log.log('Write', this.outputMidiPath);
         const writer = new MidiWriter.Writer(this.track);
-        writer.saveMIDI(
-            this.outputMidiPath.replace(/\.mid$/, '')
-        );
-        console.log('Written');
+        const data = writer.buildFile();
+        fs.writeFileSync(this.outputMidiPath, data);
+        log.log('Written');
     }
 
 
