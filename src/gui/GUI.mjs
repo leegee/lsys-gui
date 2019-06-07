@@ -9,7 +9,7 @@ const LsysParametric = require('../LsysParametric.mjs');
 const LsysRenderer = require('./LsysRenderer.mjs');
 const MIDI = require('../MIDI.mjs');
 const log = require('./Logger.mjs');
-const Presets = require('./Presets.mjs');
+const Presets = require('../Presets.mjs');
 const packageJson = require('../../package.json');
 
 module.exports = class GUI {
