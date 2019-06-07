@@ -43,10 +43,14 @@ module.exports = class MIDI {
         }
 
         const data = fs.readFileSync(this.outputMidiPath, 'binary');
-        var smf = new JZZ.MIDI.SMF(data);
-        this.player.stop();
-        this.player.load(smf);
-        this.player.play();
+        try {
+            var smf = new JZZ.MIDI.SMF(data);
+            this.player.stop();
+            this.player.load(smf);
+            this.player.play();
+        } catch (e) {
+            console.error(e);
+        }
     }
 
     /**

@@ -30,12 +30,16 @@ const LsysRenderer = class LsysRenderer {
         this.ctx = this.canvas.getContext("2d");
         this.ctx.translate(this.canvas.width / 2, this.canvas.height / 2); // Translate context to center of canvas:
 
+        this.settings.initX = 0;
+        this.settings.initY = 0;
+
         this.x = this.maxX = this.minX = Number(this.settings.initX);
         this.y = this.maxY = this.minY = Number(this.settings.initY);
 
         for (let i = 0; i < this.settings.colours.length; i++) {
             this.preparedColours[i] = this._hexAndOpacityToRgba(this.settings.colours[i], this.settings.opacities[i])
         }
+
         this._setColour(0);
         this._setUpCanvas();
     }
@@ -54,40 +58,9 @@ const LsysRenderer = class LsysRenderer {
         log.verbose('Leave finalise');
     };
 
-    _resize(content) {
-        log.verbose('Resize Min: %d , %d\nMax: %d , %d', this.minX, this.minY, this.maxX, this.maxY);
-        const wi = (this.minX < 0) ?
-            Math.abs(this.minX) + Math.abs(this.maxX) : this.maxX - this.minX;
-        const hi = (this.minY < 0) ?
-            Math.abs(this.minY) + Math.abs(this.maxY) : this.maxY - this.minY;
-        if (this.maxY <= 0) {
-            throw new RangeError('maxY out of bounds');
-        }
-        if (this.maxX <= 0) {
-            throw new RangeError('maxX out of bounds');
-        }
-
-        const sx = this.canvas.width / wi;
-        const sy = this.canvas.height / hi;
-
-        if (sx !== 0 && sy !== 0) {
-            this._setUpCanvas();
-
-            this.ctx.scale(sx, sy);
-
-            this.x = Number(this.settings.initX) || 0; // this.settings.turtleStepX|| 0;
-            this.y = Number(this.settings.initY) || this.canvas.height / 2;
-            this.y -= this.minY;
-
-            this._render({ content, draw: true });
-            log.verbose('Resized via scale %d, %d', sx, sy);
-        }
-
-        log.verbose('Leave resize');
-    };
-
     _render({ content, draw }) {
         this.penUp = !draw;
+        this.punUp = false;
         let dir = 0;
         const states = [];
         this.noteTick = 0;
@@ -138,9 +111,9 @@ const LsysRenderer = class LsysRenderer {
             };
 
             if (draw) {
-                log.info('SET DIR', dir);
+                log.debug('SET DIR', dir);
                 this._turtleGraph(dir);
-                this._addNotes(dir);
+                // this._addNotes(dir); // XXX
                 this.stepped++;
             }
         }
@@ -164,18 +137,16 @@ const LsysRenderer = class LsysRenderer {
     }
 
     _turtleGraph(dir) {
-        log.silly('Move dir (%s) from x (%s) y (%s)', dir, this.x, this.y);
+        log.info('Move dir (%s) from x (%s) y (%s)', dir, this.x, this.y);
 
-        if (!this.penUp) {
-            this.ctx.beginPath();
-            // if (this.settings.generationsScaleLines > 0) {
-            // this.ctx.lineWidth = this.settings.lineWidth; // * (totalGenerations - currentGenerationNumber);
-            // }
-            // else if (this.settings.lineWidth) {
-            this.ctx.lineWidth = this.settings.lineWidth;
-            // }
-            this.ctx.moveTo(this.x, this.y);
-        }
+        this.ctx.beginPath();
+        // if (this.settings.generationsScaleLines > 0) {
+        // this.ctx.lineWidth = this.settings.lineWidth; // * (totalGenerations - currentGenerationNumber);
+        // }
+        // else if (this.settings.lineWidth) {
+        this.ctx.lineWidth = this.settings.lineWidth;
+        // }
+        this.ctx.moveTo(this.x, this.y);
 
         this.x += (LsysRenderer.dcos(dir) * this.settings.turtleStepX);
         this.y += (LsysRenderer.dsin(dir) * this.settings.turtleStepY);
@@ -184,16 +155,16 @@ const LsysRenderer = class LsysRenderer {
         // this.y += this.settings.yoffset;
 
         if (!this.penUp) {
+            log.info('DRAW LINE TO ', Math.round(this.x), Math.round(this.y));
             this.ctx.lineTo(Math.round(this.x), Math.round(this.y));
             this.ctx.closePath();
-            log.silly('DRAW in colour ', this.ctx.strokeStyle);
             this.ctx.stroke();
         }
 
-        if (this.x > this.maxX) this.maxX = this.x;
-        if (this.y > this.maxY) this.maxY = this.y;
         if (this.x < this.minX) this.minX = this.x;
+        if (this.x > this.maxX) this.maxX = this.x;
         if (this.y < this.minY) this.minY = this.y;
+        if (this.y > this.maxY) this.maxY = this.y;
 
         log.silly('Moved to x (%s) y (%s)', this.x, this.y);
     };
@@ -224,8 +195,41 @@ const LsysRenderer = class LsysRenderer {
         this.canvas.height = this.settings.canvasHeight;
         this.ctx.fillStyle = this.settings.canvasBackgroundColour;
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+        this.x = Number(this.settings.initX);
+        this.y = Number(this.settings.initY);
     }
 
+    _resize(content) {
+        log.debug('Resize Min: %d , %d\nMax: %d , %d', this.minX, this.minY, this.maxX, this.maxY);
+        const wi = (this.minX < 0) ?
+            Math.abs(this.minX) + Math.abs(this.maxX) : this.maxX - this.minX;
+        const hi = (this.minY < 0) ?
+            Math.abs(this.minY) + Math.abs(this.maxY) : this.maxY - this.minY;
+        if (this.maxY <= 0) throw new RangeError('maxY out of bounds');
+        if (this.maxX <= 0) throw new RangeError('maxX out of bounds');
+
+        this._setUpCanvas();
+
+        // this.y -= this.minY;
+
+        const sx = this.settings.canvasWidth / wi;
+        const sy = this.settings.canvasHeight / hi;
+        if (sx !== 0 && sy !== 0) {
+            this.ctx.scale(sx, sy);
+        }
+
+        const newX = this.settings.initX - this.minX;
+        const newY = this.settings.initY - this.minY;
+
+        this.ctx.translate(newX, newY);
+
+        this._render({ content, draw: true });
+
+        log.info('min/max X %d, %d -------> scale %d --> wi = %d', this.minX, this.maxX, sx, wi);
+        log.info('min/max Y %d, %d -------> scale %d --> hi = %d', this.minY, this.maxY, sy, hi);
+        log.info('Leave resize after scaling %d, %d to %d, %d', sx, sy, this.canvas.width, this.canvas.height);
+    };
 };
 
 module.exports = LsysRenderer;
