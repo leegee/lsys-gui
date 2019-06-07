@@ -18,6 +18,12 @@ module.exports = class MIDI {
     outputToUse = 1;
     usePorts = {};
 
+    static pitchOffset(lowestNote, highestNote) {
+        return Math.floor(
+            (127 / 2) - ((highestNote - lowestNote) / 2)
+        );
+    }
+
     constructor(options) {
         JZZ.synth.Tiny.register('Web Audio');
         JZZ.synth.OSC.register('OSC');
@@ -79,9 +85,7 @@ module.exports = class MIDI {
         const velocityScaleFactor = 127 / (127 - minVelocity);
         log.silly('VELOCITY min/max notes/factor', minVelocity, maxNotesInChord, velocityScaleFactor);
 
-        const pitchOffset = Math.floor(
-            (127 / 2) - ((highestNote - lowestNote))
-        );
+        const pitchOffset = MIDI.pitchOffset(lowestNote, highestNote);
         log.silly('PITCH OFFSET', pitchOffset);
 
         let timeOffset = Math.min(...Object.keys(notes.on));
@@ -124,7 +128,5 @@ module.exports = class MIDI {
         fs.writeFileSync(this.outputMidiPath, data);
         log.log('Written');
     }
-
-
 
 }

@@ -65,113 +65,115 @@ const defaultOptions = {
 	start: "!($W)F($BS,$R)"
 };
 
-describe('Constructor', () => {
-	it('with old args', () => {
-		var oldOptions = Object.assign({}, defaultOptions);
-		delete oldOptions.variables;
-		var lsys = new Lsys(oldOptions);
-		expect(lsys).to.be.instanceOf(Lsys);
-	});
-
-	it('with new parametric args', () => {
-		var lsys = new Lsys(defaultOptions);
-
-		// NB MooTools, not native:
-		equal(typeOf(lsys.options.rules), 'array', 'Rules array');
-		lsys.options.rules.each(function (i) {
-			equal(typeOf(i), 'array', 'Rule cast');
-			equal(i.length, 3, 'rule tuple');
+describe('LsysParametric', () => {
+	describe('Constructor', () => {
+		it('with old args', () => {
+			var oldOptions = Object.assign({}, defaultOptions);
+			delete oldOptions.variables;
+			var lsys = new Lsys(oldOptions);
+			expect(lsys).to.be.instanceOf(Lsys);
 		});
 
-		deepEqual(
-			lsys.options.rules, [
-				["F($s,$o)", "$s == $AS && $o == $R", "F($AS,$L)F($BS,$R)"],
-				["F($s,$o)", "$s == $AS && $o == $L", "F($BS,$L)F($AS,$R)"],
-				["F($s,$o)", "$s == $BS", "F($AS,$o)"]
-			],
-			'Rules parsed'
+		it('with new parametric args', () => {
+			var lsys = new Lsys(defaultOptions);
+
+			// NB MooTools, not native:
+			equal(typeOf(lsys.options.rules), 'array', 'Rules array');
+			lsys.options.rules.each(function (i) {
+				equal(typeOf(i), 'array', 'Rule cast');
+				equal(i.length, 3, 'rule tuple');
+			});
+
+			deepEqual(
+				lsys.options.rules, [
+					["F($s,$o)", "$s == $AS && $o == $R", "F($AS,$L)F($BS,$R)"],
+					["F($s,$o)", "$s == $AS && $o == $L", "F($BS,$L)F($AS,$R)"],
+					["F($s,$o)", "$s == $BS", "F($AS,$o)"]
+				],
+				'Rules parsed'
+			);
+		});
+	});
+
+	/*
+	
+	test('Interploation', function () {
+		equal(
+			new Lsys(defaultOptions)
+				._interploateVars('$AS'),
+			2,
+			'Interpolate variable'
 		);
 	});
-});
-
-/*
-
-test('Interploation', function () {
-	equal(
-		new Lsys(defaultOptions)
-			._interploateVars('$AS'),
-		2,
-		'Interpolate variable'
-	);
-});
-
-test('string to re and arg name', function () {
-	var rv = new Lsys(defaultOptions)
-		._string2reAndArgNames('F(s,o)');
-	equal(typeOf(rv), 'array', 'rv type');
-	equal(rv.length, 2, 'rv length');
-	equal(typeOf(rv[0]), 'regexp', 'rv regexp');
-	var varWord = '([\\$\\w-]+)';
-	equal(rv[0], '/(F)\\(' + varWord + ',' + varWord + '\\)/g', 'rv regexp');
-	equal(typeOf(rv[1]), 'array', 'rv var names type');
-	deepEqual(rv[1], ['s', 'o'], 'rv var names value');
-});
-
-test('Constructor with bad rules', function () {
-	var badOptions = Object.clone(defaultOptions);
-	badOptions.rules = 'This is not a rule.';
-	try {
-		var lsys = new Lsys(badOptions);
-	} catch (e) {
-		ok(e.match(/parse error/gi), 'Bad rule parse error thrown');
-	}
-});
-
-test('Bad variables option', function () {
-	var badOptions = Object.clone(defaultOptions);
-	badOptions.variables = 'This is not a variable definition.';
-	try {
-		var lsys = new Lsys(badOptions);
-	} catch (e) {
-		console.log(e);
-		ok(
-			e.match(/variable def/gi),
-			'Bad variable parse error thrown as hoped'
-		);
-	}
-});
-
-test('Variable parsing', function () {
-	var varOpts = Object.clone(defaultOptions);
-	varOpts.variables += "\n#define $Test -0.5";
-	var lsys = new Lsys(varOpts);
-	equal(lsys.variables.$AS, 2, 'positive int');
-	equal(lsys.variables.$L, -1, 'negative int');
-	equal(lsys.variables.$W, 0.5, 'positive float');
-	equal(lsys.variables.$Test, -0.5, 'negative float');
-});
-
-test('Math routines', function () {
-	equal(LsysRenderer.dsin(1), 0.01745240643728351, 'sin');
-	equal(LsysRenderer.dcos(1), 0.9998476951563913, 'sin');
-});
-
-// ## Generate content
-
-test('Generated content', function () {
-	// Test each generation
-	for (var g = 1; g < expectContent.length; g++) {
-		// Let not an error stop the next test
+	
+	test('string to re and arg name', function () {
+		var rv = new Lsys(defaultOptions)
+			._string2reAndArgNames('F(s,o)');
+		equal(typeOf(rv), 'array', 'rv type');
+		equal(rv.length, 2, 'rv length');
+		equal(typeOf(rv[0]), 'regexp', 'rv regexp');
+		var varWord = '([\\$\\w-]+)';
+		equal(rv[0], '/(F)\\(' + varWord + ',' + varWord + '\\)/g', 'rv regexp');
+		equal(typeOf(rv[1]), 'array', 'rv var names type');
+		deepEqual(rv[1], ['s', 'o'], 'rv var names value');
+	});
+	
+	test('Constructor with bad rules', function () {
+		var badOptions = Object.clone(defaultOptions);
+		badOptions.rules = 'This is not a rule.';
 		try {
-			var lsys = new Lsys(defaultOptions);
-			lsys.generate(g);
-			equal(lsys.generation, g, 'lsys.generation ' + g);
-			equal(lsys.totalGenerations, g, 'totalGenerations ' + g);
-			equal(lsys.content, expectContent[g], 'content ' + g);
+			var lsys = new Lsys(badOptions);
 		} catch (e) {
-			console.error(e)
+			ok(e.match(/parse error/gi), 'Bad rule parse error thrown');
 		}
-	}
+	});
+	
+	test('Bad variables option', function () {
+		var badOptions = Object.clone(defaultOptions);
+		badOptions.variables = 'This is not a variable definition.';
+		try {
+			var lsys = new Lsys(badOptions);
+		} catch (e) {
+			console.log(e);
+			ok(
+				e.match(/variable def/gi),
+				'Bad variable parse error thrown as hoped'
+			);
+		}
+	});
+	
+	test('Variable parsing', function () {
+		var varOpts = Object.clone(defaultOptions);
+		varOpts.variables += "\n#define $Test -0.5";
+		var lsys = new Lsys(varOpts);
+		equal(lsys.variables.$AS, 2, 'positive int');
+		equal(lsys.variables.$L, -1, 'negative int');
+		equal(lsys.variables.$W, 0.5, 'positive float');
+		equal(lsys.variables.$Test, -0.5, 'negative float');
+	});
+	
+	test('Math routines', function () {
+		equal(LsysRenderer.dsin(1), 0.01745240643728351, 'sin');
+		equal(LsysRenderer.dcos(1), 0.9998476951563913, 'sin');
+	});
+	
+	// ## Generate content
+	
+	test('Generated content', function () {
+		// Test each generation
+		for (var g = 1; g < expectContent.length; g++) {
+			// Let not an error stop the next test
+			try {
+				var lsys = new Lsys(defaultOptions);
+				lsys.generate(g);
+				equal(lsys.generation, g, 'lsys.generation ' + g);
+				equal(lsys.totalGenerations, g, 'totalGenerations ' + g);
+				equal(lsys.content, expectContent[g], 'content ' + g);
+			} catch (e) {
+				console.error(e)
+			}
+		}
+	});
+	
+	*/
 });
-
-*/
