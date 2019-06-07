@@ -32,7 +32,7 @@ module.exports = class MIDI {
     play(notes, scaleName, duration) {
         const scaleOfNoteLetters = tonal.Scale.notes('A ' + scaleName);
         log.info('SCALE NOTES: ', scaleOfNoteLetters);
-        
+
         this.create(notes, scaleOfNoteLetters, duration);
 
         if (!fs.existsSync(this.outputMidiPath)) {
@@ -79,7 +79,9 @@ module.exports = class MIDI {
         const velocityScaleFactor = 127 / (127 - minVelocity);
         log.silly('VELOCITY min/max notes/factor', minVelocity, maxNotesInChord, velocityScaleFactor);
 
-        const pitchOffset = Math.floor((127 / 2) - ((highestNote - lowestNote) / 2));
+        const pitchOffset = Math.floor(
+            (127 / 2) - ((highestNote - lowestNote))
+        );
         log.silly('PITCH OFFSET', pitchOffset);
 
         let timeOffset = Math.min(...Object.keys(notes.on));
