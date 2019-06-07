@@ -31,6 +31,8 @@ module.exports = class MIDI {
 
     play(notes, scaleName, duration) {
         const scaleOfNoteLetters = tonal.Scale.notes('A ' + scaleName);
+        log.info('SCALE NOTES: ', scaleOfNoteLetters);
+        
         this.create(notes, scaleOfNoteLetters, duration);
 
         if (!fs.existsSync(this.outputMidiPath)) {
