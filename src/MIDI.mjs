@@ -55,7 +55,7 @@ module.exports = class MIDI {
     @param {object} notes.off note off values
      */
     create(notes, scale, durationScaleFactor) {
-        log.silly('----------------\n', JSON.stringify(notes, {}, '    '));
+        log.silly('create---------------->', JSON.stringify(notes, {}, '    '));
         log.silly('durationScaleFactor', durationScaleFactor);
         let minVelocity = 50;
         let highestNote = 0;
