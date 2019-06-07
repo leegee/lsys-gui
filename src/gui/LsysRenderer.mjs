@@ -1,6 +1,6 @@
 const log = require('./Logger.mjs');
 
-const RAD = Math.PI / 180.0;
+const DEGREE_TO_RADIAN_FACTOR = Math.PI / 180.0;
 
 const LsysRenderer = class LsysRenderer {
     preparedColours = [];
@@ -16,12 +16,12 @@ const LsysRenderer = class LsysRenderer {
     };
     stepped = null;
 
-    static dsin(radians) {
-        return Math.sin(radians * RAD)
+    static dsin(degrees) {
+        return Math.sin(degrees * DEGREE_TO_RADIAN_FACTOR)
     };
 
-    static dcos(radians) {
-        return Math.cos(radians * RAD)
+    static dcos(degrees) {
+        return Math.cos(degrees * DEGREE_TO_RADIAN_FACTOR)
     };
 
     constructor(settings, canvas) {
@@ -138,6 +138,7 @@ const LsysRenderer = class LsysRenderer {
             };
 
             if (draw) {
+                log.info('SET DIR', dir);
                 this._turtleGraph(dir);
                 this._addNotes(dir);
                 this.stepped++;
