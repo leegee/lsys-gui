@@ -65,14 +65,15 @@ const LsysRenderer = class LsysRenderer {
             this.y = Number(this.settings.initY) || this.canvas.height / 2;
             this.y -= this.minY;
 
-            this.render(content);
+            this.render({content, draw: true});
             log.verbose('Resized via scale %d, %d', sx, sy);
         }
 
         log.verbose('Leave resize');
     };
 
-    render(content) {
+    render({content, draw}) {
+        this.penUp = !draw;
         let dir = 0;
         const states = [];
         this.noteTick = 0;
