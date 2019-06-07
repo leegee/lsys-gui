@@ -1,5 +1,7 @@
 const fs = require('fs');
 
+const tonal = require("tonal");
+
 const MidiWriter = require('midi-writer-js');
 const JZZ = require('jzz');
 require('jzz-midi-smf')(JZZ);
@@ -11,10 +13,6 @@ require('jazz-midi-electron')();
 const log = require('./gui/Logger.mjs');
 
 module.exports = class MIDI {
-    static scales = {
-        pentatonic: ['E', 'G', 'A', 'B', 'D']
-    };
-
     options = {};
     outputs = [];
     outputToUse = 1;
@@ -32,11 +30,8 @@ module.exports = class MIDI {
     }
 
     play(notes, scaleName, duration) {
-        if (!MIDI.scales.hasOwnProperty(scaleName)) {
-            throw new TypeError('Unknown scale, ' + scaleName);
-        }
-
-        this.create(notes, MIDI.scales[scaleName], duration);
+        const scaleOfNoteLetters = tonal.Scale.notes('A ' + scaleName);
+        this.create(notes, scaleOfNoteLetters, duration);
 
         if (!fs.existsSync(this.outputMidiPath)) {
             throw new Error('No such file', this.outputMidiPath);
@@ -58,7 +53,7 @@ module.exports = class MIDI {
     @param {object} notes.on note on values
     @param {object} notes.off note off values
      */
-    create(notes, scale, durationScaleFactor) {
+    create(notes, scaleOfNoteLetters, durationScaleFactor) {
         log.silly('create---------------->', JSON.stringify(notes, {}, '    '));
         log.silly('durationScaleFactor', durationScaleFactor);
         let minVelocity = 50;
@@ -98,8 +93,8 @@ module.exports = class MIDI {
 
             notes.on[startTimeIndex].forEach((noteValue, arrayIndex) => {
                 const pitch = pitchOffset + Math.round(noteValue); // Here fit to scale
-                const noteIndex = Math.abs(pitch) % scale.length;
-                const note = scale[noteIndex];
+                const noteIndex = Math.abs(pitch) % scaleOfNoteLetters.length;
+                const note = scaleOfNoteLetters[noteIndex];
                 const octave = Math.round(Math.abs(pitch) / (127 / 8));
                 log.silly({ startTimeIndex, pitchOffset, pitch, noteIndex, note, octave, durationScaleFactor, timeOffset });
 

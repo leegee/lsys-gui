@@ -4,6 +4,7 @@ const fs = require("fs");
 const os = require('os');
 const { fork } = require('child_process');
 const electron = require('electron');
+const tonal = require('tonal');
 
 const LsysParametric = require('../LsysParametric.mjs');
 const LsysRenderer = require('./LsysRenderer.mjs');
@@ -24,7 +25,7 @@ module.exports = class GUI {
     settings = {
         // mergeDuplicates: 1,
         duration: 25,
-        scale: 'pentatonic',
+        scale: 'minor pentatonic',
         initialNote: 64,
         canvasWidth: 1000,
         canvasHeight: 800,
@@ -87,6 +88,14 @@ module.exports = class GUI {
             el.value = this.settings.opacities[index];
         });
 
+        // Scales
+        const scaleSelect = this.window.document.getElementById('scale');
+        tonal.Scale.names().forEach(name => {
+            const option = this.window.document.createElement('option');
+            option.innerText = name;
+            scaleSelect.appendChild(option);
+        });
+
         this.updateSettings();
         this.createListeners();
         this.loadPreset(this.initialPreset);
@@ -127,6 +136,11 @@ module.exports = class GUI {
                 this.settings[el.id] = el.value.trim();
                 log.silly('INPUT el %o changed to %s: ', el.id, this.settings[el.id], el);
             }
+        }
+
+        else if (el.nodeName === 'SELECT') {
+            this.settings[el.id] = el.value.trim();
+            log.silly('Set ', el.id, 'to', el.value);
         }
 
         else {
@@ -292,9 +306,13 @@ module.exports = class GUI {
                                     el.checked = this.settings[id];
                                     el.setAttribute('checked', this.settings[id]);
                                 }
-                            } else {
+                            }
+                            else {
                                 el.value = this.settings[id];
                             }
+                        }
+                        else if (el.nodeName === 'SELECT') {
+                            el.value = el.selected = this.settings[id];
                         }
                         else {
                             el.innerText = this.settings[id];

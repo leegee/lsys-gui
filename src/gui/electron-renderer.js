@@ -18,7 +18,7 @@ window.addEventListener('DOMContentLoaded', () => {
     const elements = [
         'canvases', 'midiPorts',
         'viewMain', 'viewSettings',
-        'actionViewMain', 'actionGenerate', // 'actionCreateMidi', 
+        'actionViewMain', 'actionGenerate', 'actionCreateMidi', 
     ].reduce((o, key) => {
         o[key] = window.document.getElementById(key);
         return o;
