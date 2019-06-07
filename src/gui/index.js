@@ -34,6 +34,7 @@ const createWindow = () => {
     }));
 
     if (appConfig.dev) {
+        mainWindow.maximize();
         mainWindow.webContents.openDevTools();
     }
 
