@@ -359,7 +359,6 @@ module.exports = class GUI {
     }
 
     actionCreateMidi() {
-        return; // XXX
         log.silly('Enter actionCreateMidi');
         this.midi.play(
             this.lsysRenderer.notesContent,

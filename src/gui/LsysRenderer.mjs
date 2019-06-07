@@ -113,7 +113,7 @@ const LsysRenderer = class LsysRenderer {
             if (draw) {
                 log.debug('SET DIR', dir);
                 this._turtleGraph(dir);
-                // this._addNotes(dir); // XXX
+                this._addNotes(dir);
                 this.stepped++;
             }
         }
@@ -125,7 +125,7 @@ const LsysRenderer = class LsysRenderer {
         const duration = startTick - this.noteTick;
         this.noteTick += duration;
 
-        log.silly({ startTick, noteTick: this.noteTick, dir, duration, pitchIndex });
+        log.silly('ADD NOTES', { startTick, noteTick: this.noteTick, dir, duration, pitchIndex });
 
         if (!this.penUp) {
             this.notesContent.on[startTick] = this.notesContent.on[startTick] || [];
