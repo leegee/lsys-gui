@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const log = require('./logger.mjs');
+const log = require('./Logger.mjs');
 const LsysParametric = require('../LsysParametric.mjs');
 
 const start = (args) => {

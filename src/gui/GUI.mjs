@@ -8,7 +8,7 @@ const electron = require('electron');
 const LsysParametric = require('../LsysParametric.mjs');
 const LsysRenderer = require('./LsysRenderer.mjs');
 const MIDI = require('../MIDI.mjs');
-const log = require('./logger.mjs');
+const log = require('./Logger.mjs');
 const Presets = require('./Presets.mjs');
 const packageJson = require('../../package.json');
 

@@ -1,4 +1,4 @@
-const log = require('./logger.mjs');
+const log = require('./Logger.mjs');
 
 const RAD = Math.PI / 180.0;
 

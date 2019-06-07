@@ -2,7 +2,7 @@
 
 const electron = require('electron');
 const cleanStack = require('clean-stack');
-const log = require('./logger.mjs');
+const log = require('./Logger.mjs');
 
 const app = electron.app || electron.remote.app;
 const clipboard = electron.clipboard || electron.remote.clipboard;
