@@ -89,7 +89,7 @@ module.exports = class GUI {
 
         this.updateSettings();
         this.createListeners();
-        this.loadPreset( this.initialPreset );
+        this.loadPreset(this.initialPreset);
         this.view(this.currentViewName);
     }
 
@@ -190,8 +190,9 @@ module.exports = class GUI {
                         label: '&Load Preset',
                         submenu: Presets.map((preset, index) => {
                             return {
+                                type: 'radio',
                                 label: preset.title,
-                                click: () => this.loadPreset(index)
+                                click: (e) => this.loadPreset(index, e)
                             }
                         })
                     },
@@ -308,8 +309,12 @@ module.exports = class GUI {
         });
     }
 
-    loadPreset(idx = 0) {
+    loadPreset(idx = 0, e) {
         log.info('Load preset ', idx, Presets[idx]);
+
+        if (e) {
+            e.checked = true;
+        }
 
         if (!Presets[idx].totalGenerations) {
             Presets[idx].totalGenerations = 1;
