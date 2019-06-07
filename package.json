@@ -57,5 +57,5 @@
 	"nodejs": true,
 	"node": true,
 	"license": "UNLICENCED",
-	"main": "src/gui/electron-app.js"
+	"main": "src/gui"
 }
