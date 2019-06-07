@@ -32,7 +32,7 @@ log.transports.file.clear = () => {
     if (fs.existsSync(logPath)) {
         try {
             fs.unlinkSync(logPath);
-            process.stdout.write('Cleard log\n');
+            process.stdout.write('Cleared log\n');
         } catch (e) {
             process.stderr.write('Could not clear log! ' + e.name + ': ' + e.message + '\n');
         }
