@@ -18,6 +18,7 @@ module.exports = class GUI {
     midi = null;
     canvas = null;
     lsysRenderer = null;
+    initialPreset = 0;
     currentViewName = 'viewMain';
     _lastGenerationContent = '';
     settings = {
@@ -88,7 +89,7 @@ module.exports = class GUI {
 
         this.updateSettings();
         this.createListeners();
-        this.loadPreset();
+        this.loadPreset( this.initialPreset );
         this.view(this.currentViewName);
     }
 

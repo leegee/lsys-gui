@@ -27,6 +27,7 @@ window.addEventListener('DOMContentLoaded', () => {
     console.log('-----------', navigator);
 
     const gui = new GUI({
+        initialPreset: appConfig.dev ? 2 : 0,
         navigator,
         window,
         appConfig,
