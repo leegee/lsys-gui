@@ -191,7 +191,8 @@ module.exports = class GUI {
                         submenu: Presets.map((preset, index) => {
                             return {
                                 type: 'radio',
-                                label: preset.title,
+                                label: (index + 1) + ' ' + preset.title,
+                                accelerator: index <= 10 ? (index + 1) : undefined,
                                 click: (e) => this.loadPreset(index, e)
                             }
                         })
@@ -223,8 +224,7 @@ module.exports = class GUI {
                         click: () => electron.shell.showItemInFolder(this.logFilePath)
                     },
                     {
-                        label: '&Developer Tools',
-                        click: () => this.win.openDevTools(),
+                        role: 'toggleDevTools'
                     },
                     {
 
