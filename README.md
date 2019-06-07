@@ -20,8 +20,8 @@ The sample GUI contains several presets, using the following parametric-compatib
     #define W    0.5
     #define AS 	 2
     #define BS 	 1
-    #define R 	 1
-    #define L    -1
+    #define R    1
+    #define L   -1
 
     w : !(W)F(BS,R)
     p1 : F(s,o) : s == AS && o == R -> F(AS,L)F(BS,R)
