@@ -34,13 +34,27 @@ const LsysRenderer = class LsysRenderer {
         this.y = this.maxY = this.minY = Number(this.settings.initY);
 
         for (let i = 0; i < this.settings.colours.length; i++) {
-            this.preparedColours[i] = this.hexAndOpacityToRgba(this.settings.colours[i], this.settings.opacities[i])
+            this.preparedColours[i] = this._hexAndOpacityToRgba(this.settings.colours[i], this.settings.opacities[i])
         }
-        this.setColour(0);
-        this.setUpCanvas();
+        this._setColour(0);
+        this._setUpCanvas();
     }
 
-    resize(content) {
+    create(content) {
+        this._render({ content, draw: false });
+        this._resize(content);
+    }
+
+    finalise() {
+        log.verbose('Enter finalise');
+        if (this.settings.finally && typeof this.settings.finally === 'function') {
+            log.verbose('Call finally');
+            this.settings.finally.call(this);
+        }
+        log.verbose('Leave finalise');
+    };
+
+    _resize(content) {
         log.verbose('Resize Min: %d , %d\nMax: %d , %d', this.minX, this.minY, this.maxX, this.maxY);
         const wi = (this.minX < 0) ?
             Math.abs(this.minX) + Math.abs(this.maxX) : this.maxX - this.minX;
@@ -57,7 +71,7 @@ const LsysRenderer = class LsysRenderer {
         const sy = this.canvas.height / hi;
 
         if (sx !== 0 && sy !== 0) {
-            this.setUpCanvas();
+            this._setUpCanvas();
 
             this.ctx.scale(sx, sy);
 
@@ -65,14 +79,14 @@ const LsysRenderer = class LsysRenderer {
             this.y = Number(this.settings.initY) || this.canvas.height / 2;
             this.y -= this.minY;
 
-            this.render({content, draw: true});
+            this._render({ content, draw: true });
             log.verbose('Resized via scale %d, %d', sx, sy);
         }
 
         log.verbose('Leave resize');
     };
 
-    render({content, draw}) {
+    _render({ content, draw }) {
         this.penUp = !draw;
         let dir = 0;
         const states = [];
@@ -98,7 +112,7 @@ const LsysRenderer = class LsysRenderer {
                     const colourCode = content.charAt(++i);
                     const index = parseInt(colourCode, 10) % this.settings.colours.length;
                     log.silly('Got colour code (%s) made index', colourCode, index);
-                    this.setColour(index);
+                    this._setColour(index);
                     draw = false;
                     break;
                 case '+': // Right
@@ -124,14 +138,14 @@ const LsysRenderer = class LsysRenderer {
             };
 
             if (draw) {
-                this.turtleGraph(dir);
-                this.addNotes(dir);
+                this._turtleGraph(dir);
+                this._addNotes(dir);
                 this.stepped++;
             }
         }
     }
 
-    addNotes(dir) {
+    _addNotes(dir) {
         const startTick = this.noteTick + Math.abs(LsysRenderer.dcos(dir)); // Only move fowards
         const pitchIndex = this.y + LsysRenderer.dsin(dir);
         const duration = startTick - this.noteTick;
@@ -148,7 +162,7 @@ const LsysRenderer = class LsysRenderer {
         }
     }
 
-    turtleGraph(dir) {
+    _turtleGraph(dir) {
         log.silly('Move dir (%s) from x (%s) y (%s)', dir, this.x, this.y);
 
         if (!this.penUp) {
@@ -183,21 +197,12 @@ const LsysRenderer = class LsysRenderer {
         log.silly('Moved to x (%s) y (%s)', this.x, this.y);
     };
 
-    setWidth(px) {
+    _setWidth(px) {
         this.ctx.lineWidth = px;
     };
 
-    finalise() {
-        log.verbose('Enter finalise');
-        if (this.settings.finally && typeof this.settings.finally === 'function') {
-            log.verbose('Call finally');
-            this.settings.finally.call(this);
-        }
-        log.verbose('Leave finalise');
-    };
-
     // Thanks https://stackoverflow.com/questions/5623838/rgb-to-hex-and-hex-to-rgb
-    hexAndOpacityToRgba(hex, opacity) {
+    _hexAndOpacityToRgba(hex, opacity) {
         var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
         return result ? 'rgb(' +
             parseInt(result[1], 16) + ',' +
@@ -207,13 +212,13 @@ const LsysRenderer = class LsysRenderer {
             ')' : null;
     }
 
-    setColour(colourIndex) {
+    _setColour(colourIndex) {
         this.colour = this.preparedColours[colourIndex];
         log.silly('Set colour to index (%d): ', colourIndex, this.colour, this.settings.colours);
         this.ctx.strokeStyle = this.colour;
     }
 
-    setUpCanvas() {
+    _setUpCanvas() {
         this.canvas.width = this.settings.canvasWidth;
         this.canvas.height = this.settings.canvasHeight;
         this.ctx.fillStyle = this.settings.canvasBackgroundColour;

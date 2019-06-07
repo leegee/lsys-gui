@@ -393,8 +393,7 @@ module.exports = class GUI {
         const currentGeneration = currentGeneration.substring(
             this._lastGenerationContent.length
         );
-        // this.lsysRenderer.resize(currentGeneration);
-        // this.lsysRenderer.render(currentGeneration);
+        // this.lsysRenderer.create(currentGeneration);
         this._lastGenerationContent = currentGeneration;
     }
 
@@ -405,8 +404,8 @@ module.exports = class GUI {
         this.elements.actionGenerate.value = this._oldActionGenerate;
         this.elements.actionGenerate.disabled = false;
 
-        this.lsysRenderer.render({ content, draw: false } );
-        this.lsysRenderer.resize(content);
+        this.lsysRenderer.create(content);
+
         this.lsysRenderer.finalise();
         this.canvas.addEventListener('click', (e) => this.openElementInNewWindow(e.target));
         this.actionCreateMidi();
