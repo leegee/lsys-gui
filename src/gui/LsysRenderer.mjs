@@ -57,7 +57,6 @@ const LsysRenderer = class LsysRenderer {
     create(content) {
         this._render({ content, draw: false });
         this._afterRender(content);
-        alert('leave create');
     }
 
     finalise() {
