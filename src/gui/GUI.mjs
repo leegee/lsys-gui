@@ -335,6 +335,7 @@ module.exports = class GUI {
         }
 
         if (!Presets[idx].totalGenerations) {
+            log.warn('Preset %d had no value for totalGenerations: using 1.', idx);
             Presets[idx].totalGenerations = 1;
         }
 
