@@ -215,7 +215,7 @@ module.exports = class LsysParametric {
 		let finalContent = '';
 
 		// Itterate over atoms within the content:
-		const atoms = this.content.match(/(.(\([^)]+\))?)/sg);
+		const atoms = this.content.match(/(.(\([^)]+\))?)/g);
 		if (this.content != atoms.join('')) {
 			this.options.logger.error(atoms);
 			this.options.logger.error('atoms ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^');
@@ -296,9 +296,6 @@ module.exports = class LsysParametric {
 		}); // Next atom
 
 		this.content = finalContent;
-
-		// Add a new line to signify end of a generation: may make .content an array when tests are back up and running.
-		this.content += '\n';
 
 		this.options.logger.silly('After all rules were applied, content is: ', this.content);
 		this.options.logger.verbose(
