@@ -44,9 +44,19 @@ const LsysRenderer = class LsysRenderer {
         this._setUpCanvas();
     }
 
+    _setUpCanvas() {
+        this.canvas.width = this.settings.canvasWidth;
+        this.canvas.height = this.settings.canvasHeight;
+        this.ctx.fillStyle = this.settings.canvasBackgroundColour;
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+        this.x = Number(this.settings.initX);
+        this.y = Number(this.settings.initY);
+    }
+
     create(content) {
         this._render({ content, draw: false });
-        this._resize(content);
+        this._finalise(content);
     }
 
     finalise() {
@@ -58,7 +68,13 @@ const LsysRenderer = class LsysRenderer {
         log.verbose('Leave finalise');
     };
 
-    _render({ content, draw }) {
+    _render({ content, draw, play }) {
+        log.info('RENDER: draw:%s, play:%s', draw, play);
+        if (play) {
+            log.info('x'.repeat(40));
+            log.info(content);
+            log.info('x'.repeat(40));
+        }
         this.penUp = !draw;
         this.punUp = false;
         let dir = 0;
@@ -120,12 +136,10 @@ const LsysRenderer = class LsysRenderer {
     }
 
     _addNotes(dir) {
-        const startTick = this.noteTick + Math.abs(LsysRenderer.dcos(dir)); // Only move fowards
-        const pitchIndex = this.y + LsysRenderer.dsin(dir);
-        const duration = startTick - this.noteTick;
-        this.noteTick += duration;
-
-        log.silly('ADD NOTES', { startTick, noteTick: this.noteTick, dir, duration, pitchIndex });
+        // always forwards
+        const startTick = this.x; // this.stepped
+        const pitchIndex = this.y;
+        const duration = 1;
 
         if (!this.penUp) {
             this.notesContent.on[startTick] = this.notesContent.on[startTick] || [];
@@ -134,6 +148,7 @@ const LsysRenderer = class LsysRenderer {
             this.notesContent.on[startTick].push(pitchIndex);
             this.notesContent.off[startTick].push(duration);
         }
+
     }
 
     _turtleGraph(dir) {
@@ -190,17 +205,8 @@ const LsysRenderer = class LsysRenderer {
         this.ctx.strokeStyle = this.colour;
     }
 
-    _setUpCanvas() {
-        this.canvas.width = this.settings.canvasWidth;
-        this.canvas.height = this.settings.canvasHeight;
-        this.ctx.fillStyle = this.settings.canvasBackgroundColour;
-        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
-        this.x = Number(this.settings.initX);
-        this.y = Number(this.settings.initY);
-    }
-
-    _resize(content) {
+    resizeCanvas() {
         log.debug('Resize Min: %d , %d\nMax: %d , %d', this.minX, this.minY, this.maxX, this.maxY);
         const wi = (this.minX < 0) ?
             Math.abs(this.minX) + Math.abs(this.maxX) : this.maxX - this.minX;
@@ -223,8 +229,12 @@ const LsysRenderer = class LsysRenderer {
         const newY = this.settings.initY - this.minY;
 
         this.ctx.translate(newX, newY);
+    }
 
-        this._render({ content, draw: true });
+    _finalise(content) {
+        this.resizeCanvas();
+
+        this._render({ content, draw: true, play: true });
 
         log.info('min/max X %d, %d -------> scale %d --> wi = %d', this.minX, this.maxX, sx, wi);
         log.info('min/max Y %d, %d -------> scale %d --> hi = %d', this.minY, this.maxY, sy, hi);

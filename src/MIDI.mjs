@@ -20,7 +20,7 @@ module.exports = class MIDI {
 
     static pitchOffset(lowestNote, highestNote) {
         return Math.floor(
-            (127 / 2) - ((highestNote - lowestNote) / 2)
+            (127 / 2) - ((Math.abs(highestNote) - Math.abs(lowestNote)) / 2)
         );
     }
 
@@ -33,6 +33,8 @@ module.exports = class MIDI {
         });
 
         Object.keys(options).forEach(option => this[option] = options[option]);
+
+        this.port = JZZ().openMidiOut().or(() => alert('Cannot open MIDI port.'));
     }
 
     play(notes, scaleName, duration) {

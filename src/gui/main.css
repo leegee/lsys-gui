@@ -119,6 +119,7 @@ canvas {
 	max-width: 29vw;
 	float: left;
 	margin: 1em;
+	transform: scaleY(-1);
 }
 
 #midiPorts ul {
