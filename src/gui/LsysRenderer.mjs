@@ -54,9 +54,9 @@ const LsysRenderer = class LsysRenderer {
         this.y = Number(this.settings.initY);
     }
 
-    render(content) {
+    render(content, midiRenderer) {
         this._render({ content, draw: false });
-        this._afterRender(content);
+        this._afterRender(content, midiRenderer);
     }
 
     finalise() {
@@ -68,9 +68,9 @@ const LsysRenderer = class LsysRenderer {
         log.verbose('Leave finalise');
     };
 
-    _render({ content, draw, play }) {
-        log.info('RENDER: draw:%s, play:%s', draw, play);
-        if (play) {
+    _render({ content, draw, play: midiRenderer }) {
+        log.info('RENDER: draw:%s, play:%s', draw, midiRenderer);
+        if (midiRenderer) {
             log.info('x'.repeat(40));
             log.info(content);
             log.info('x'.repeat(40));
@@ -235,9 +235,9 @@ const LsysRenderer = class LsysRenderer {
         log.info('Leave resize after scaling %d, %d to %d, %d', sx, sy, this.canvas.width, this.canvas.height);
     }
 
-    _afterRender(content) {
+    _afterRender(content, midiRenderer) {
         this.resizeCanvas();
-        this._render({ content, draw: true, play: true });
+        this._render({ content, draw: true, midiRenderer });
     };
 };
 

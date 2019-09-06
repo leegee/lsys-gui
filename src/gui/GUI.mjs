@@ -429,7 +429,7 @@ module.exports = class GUI {
         this.elements.actionGenerate.value = this._oldActionGenerate;
         this.elements.actionGenerate.disabled = false;
 
-        this.lsysRenderer.render(content);
+        this.lsysRenderer.render(content, this.midi);
 
         this.lsysRenderer.finalise();
         this.canvas.addEventListener('click', (e) => this.openElementInNewWindow(e.target));
