@@ -68,8 +68,8 @@ const LsysRenderer = class LsysRenderer {
         log.verbose('Leave finalise');
     };
 
-    _render({ content, draw, play: midiRenderer }) {
-        log.info('RENDER: draw:%s, play:%s', draw, midiRenderer);
+    _render({ content, draw, midiRenderer }) {
+        log.info('RENDER: draw:%s, midiRenderer:%s', draw, midiRenderer ? true : false);
         if (midiRenderer) {
             log.info('x'.repeat(40));
             log.info(content);
@@ -129,13 +129,13 @@ const LsysRenderer = class LsysRenderer {
             if (draw) {
                 log.debug('SET DIR', dir);
                 this._turtleGraph(dir);
-                this._addNotes(dir);
+                this._addNotes(dir, midiRenderer);
                 this.stepped++;
             }
         }
     }
 
-    _addNotes(dir) {
+    _addNotes(dir, midiRenderer) {
         // always forwards
         const startTick = this.x; // this.stepped
         const pitchIndex = this.y;
@@ -147,8 +147,18 @@ const LsysRenderer = class LsysRenderer {
 
             this.notesContent.on[startTick].push(pitchIndex);
             this.notesContent.off[startTick].push(duration);
-        }
 
+            if (midiRenderer) {
+                // Need a way to render a whole generation to preserve the polyphony created by branches?
+                midiRenderer.playNote({
+                    startTick, pitchIndex, duration
+                });
+            }
+        }
+    }
+
+    sleep(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
     }
 
     _turtleGraph(dir) {

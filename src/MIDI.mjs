@@ -37,7 +37,11 @@ module.exports = class MIDI {
         this.port = JZZ().openMidiOut().or(() => alert('Cannot open MIDI port.'));
     }
 
-    play(notes, scaleName, duration) {
+    playNote({ startTick, pitchIndex, duration }) {
+        console.info('RT PLAY NOTE: ', { startTick, pitchIndex, duration });
+    }
+
+    playFile(notes, scaleName, duration) {
         const scaleOfNoteLetters = tonal.Scale.notes('A ' + scaleName);
         log.info('SCALE NOTES: ', scaleOfNoteLetters);
 

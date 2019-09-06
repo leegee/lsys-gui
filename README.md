@@ -44,4 +44,4 @@ The sample GUI contains several presets, using the following parametric-compatib
 ## To Do
 
 * Quantize sound
-* Real-time playback
+* Real-time playback polyphony from branches - id generations in output .content
