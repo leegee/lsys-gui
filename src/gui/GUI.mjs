@@ -343,7 +343,7 @@ module.exports = class GUI {
         });
 
         this.updateSettings();
-        this.actionGenerate(1);
+        this.actionGenerate();
     }
 
     actionViewMain() {
