@@ -40,3 +40,8 @@ The sample GUI contains several presets, using the following parametric-compatib
     rule p2
     F(1,-1)F(2,1)F(2,1)
     rule p3
+
+## To Do
+
+* Quantize sound
+* Real-time playback
