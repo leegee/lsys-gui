@@ -54,7 +54,7 @@ const LsysRenderer = class LsysRenderer {
         this.y = Number(this.settings.initY);
     }
 
-    create(content) {
+    render(content) {
         this._render({ content, draw: false });
         this._afterRender(content);
     }
