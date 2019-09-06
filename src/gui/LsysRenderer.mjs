@@ -56,7 +56,8 @@ const LsysRenderer = class LsysRenderer {
 
     create(content) {
         this._render({ content, draw: false });
-        this._finalise(content);
+        this._afterRender(content);
+        alert('leave create');
     }
 
     finalise() {
@@ -229,16 +230,15 @@ const LsysRenderer = class LsysRenderer {
         const newY = this.settings.initY - this.minY;
 
         this.ctx.translate(newX, newY);
-    }
-
-    _finalise(content) {
-        this.resizeCanvas();
-
-        this._render({ content, draw: true, play: true });
 
         log.info('min/max X %d, %d -------> scale %d --> wi = %d', this.minX, this.maxX, sx, wi);
         log.info('min/max Y %d, %d -------> scale %d --> hi = %d', this.minY, this.maxY, sy, hi);
         log.info('Leave resize after scaling %d, %d to %d, %d', sx, sy, this.canvas.width, this.canvas.height);
+    }
+
+    _afterRender(content) {
+        this.resizeCanvas();
+        this._render({ content, draw: true, play: true });
     };
 };
 
