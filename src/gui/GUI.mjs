@@ -362,10 +362,10 @@ module.exports = class GUI {
         this.elements.actionGenerate.disabled = true;
 
         this.canvas = this.window.document.createElement('canvas');
+        this.elements.canvases.insertBefore(this.canvas, this.elements.canvases.firstChild);
 
         this.lsysRenderer = new LsysRenderer(this.settings, this.canvas);
 
-        this.elements.canvases.insertBefore(this.canvas, this.elements.canvases.firstChild);
         this.canvas.scrollIntoView({
             behavior: "smooth",
             block: "end"
