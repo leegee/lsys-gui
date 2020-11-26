@@ -1,5 +1,3 @@
-const log = require('./Logger.mjs');
-
 const DEGREE_TO_RADIAN_FACTOR = Math.PI / 180.0;
 
 const LsysRenderer = class LsysRenderer {
@@ -24,9 +22,10 @@ const LsysRenderer = class LsysRenderer {
         return Math.cos(degrees * DEGREE_TO_RADIAN_FACTOR)
     };
 
-    constructor(settings, canvas) {
+    constructor(settings, canvas, logger) {
         this.settings = settings;
         this.canvas = canvas;
+        this.logger = logger;
         this.ctx = this.canvas.getContext("2d");
         this.ctx.translate(this.canvas.width / 2, this.canvas.height / 2); // Translate context to center of canvas:
 
@@ -60,20 +59,20 @@ const LsysRenderer = class LsysRenderer {
     }
 
     finalise() {
-        log.verbose('Enter finalise');
+        this.logger.verbose('Enter finalise');
         if (this.settings.finally && typeof this.settings.finally === 'function') {
-            log.verbose('Call finally');
+            this.logger.verbose('Call finally');
             this.settings.finally.call(this);
         }
-        log.verbose('Leave finalise');
+        this.logger.verbose('Leave finalise');
     };
 
     _render({ content, draw, midiRenderer }) {
-        log.info('RENDER: draw:%s, midiRenderer:%s', draw, midiRenderer ? true : false);
+        this.logger.info('RENDER: draw:%s, midiRenderer:%s', draw, midiRenderer ? true : false);
         if (midiRenderer) {
-            log.info('x'.repeat(40));
-            log.info(content);
-            log.info('x'.repeat(40));
+            this.logger.info('x'.repeat(40));
+            this.logger.info(content);
+            this.logger.info('x'.repeat(40));
         }
         this.penUp = !draw;
         this.punUp = false;
@@ -92,7 +91,7 @@ const LsysRenderer = class LsysRenderer {
             this.penUp = false;
             const atom = content.charAt(i).toLowerCase();
 
-            log.silly('Do content atom %d, (%s)', i, atom);
+            this.logger.silly('Do content atom %d, (%s)', i, atom);
 
             switch (atom) {
                 case 'f': // Forwards
@@ -100,7 +99,7 @@ const LsysRenderer = class LsysRenderer {
                 case 'c': // Set colour
                     const colourCode = content.charAt(++i);
                     const index = parseInt(colourCode, 10) % this.settings.colours.length;
-                    log.silly('Got colour code (%s) made index', colourCode, index);
+                    this.logger.silly('Got colour code (%s) made index', colourCode, index);
                     this._setColour(index);
                     draw = false;
                     break;
@@ -127,7 +126,7 @@ const LsysRenderer = class LsysRenderer {
             };
 
             if (draw) {
-                log.debug('SET DIR', dir);
+                this.logger.debug('SET DIR', dir);
                 this._turtleGraph(dir);
                 this._addNotes(dir, midiRenderer);
                 this.stepped++;
@@ -162,7 +161,7 @@ const LsysRenderer = class LsysRenderer {
     }
 
     _turtleGraph(dir) {
-        log.info('Move dir (%s) from x (%s) y (%s)', dir, this.x, this.y);
+        this.logger.debug('Move dir (%s) from x (%s) y (%s)', dir, this.x, this.y);
 
         this.ctx.beginPath();
         // if (this.settings.generationsScaleLines > 0) {
@@ -180,7 +179,7 @@ const LsysRenderer = class LsysRenderer {
         // this.y += this.settings.yoffset;
 
         if (!this.penUp) {
-            log.info('DRAW LINE TO ', Math.round(this.x), Math.round(this.y));
+            this.logger.debug('DRAW LINE TO ', Math.round(this.x), Math.round(this.y));
             this.ctx.lineTo(Math.round(this.x), Math.round(this.y));
             this.ctx.closePath();
             this.ctx.stroke();
@@ -191,7 +190,7 @@ const LsysRenderer = class LsysRenderer {
         if (this.y < this.minY) this.minY = this.y;
         if (this.y > this.maxY) this.maxY = this.y;
 
-        log.silly('Moved to x (%s) y (%s)', this.x, this.y);
+        this.logger.silly('Moved to x (%s) y (%s)', this.x, this.y);
     };
 
     _setWidth(px) {
@@ -211,13 +210,13 @@ const LsysRenderer = class LsysRenderer {
 
     _setColour(colourIndex) {
         this.colour = this.preparedColours[colourIndex];
-        log.silly('Set colour to index (%d): ', colourIndex, this.colour, this.settings.colours);
+        this.logger.silly('Set colour to index (%d): ', colourIndex, this.colour, this.settings.colours);
         this.ctx.strokeStyle = this.colour;
     }
 
 
     resizeCanvas() {
-        log.debug('Resize Min: %d , %d\nMax: %d , %d', this.minX, this.minY, this.maxX, this.maxY);
+        this.logger.debug('Resize Min: %d , %d\nMax: %d , %d', this.minX, this.minY, this.maxX, this.maxY);
         const wi = (this.minX < 0) ?
             Math.abs(this.minX) + Math.abs(this.maxX) : this.maxX - this.minX;
         const hi = (this.minY < 0) ?
@@ -240,9 +239,9 @@ const LsysRenderer = class LsysRenderer {
 
         this.ctx.translate(newX, newY);
 
-        log.info('min/max X %d, %d -------> scale %d --> wi = %d', this.minX, this.maxX, sx, wi);
-        log.info('min/max Y %d, %d -------> scale %d --> hi = %d', this.minY, this.maxY, sy, hi);
-        log.info('Leave resize after scaling %d, %d to %d, %d', sx, sy, this.canvas.width, this.canvas.height);
+        this.logger.info('min/max X %d, %d -------> scale %d --> wi = %d', this.minX, this.maxX, sx, wi);
+        this.logger.info('min/max Y %d, %d -------> scale %d --> hi = %d', this.minY, this.maxY, sy, hi);
+        this.logger.info('Leave resize after scaling %d, %d to %d, %d', sx, sy, this.canvas.width, this.canvas.height);
     }
 
     _afterRender(content, midiRenderer) {

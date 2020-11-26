@@ -63,7 +63,7 @@ module.exports = class MIDI {
     }
 
     /**
-    @param {object} notes 
+    @param {object} notes
     @param {object} notes.on note on values
     @param {object} notes.off note off values
      */
@@ -123,7 +123,7 @@ module.exports = class MIDI {
                 if (pitch <= 127) {
                     this.track.addEvent(new MidiWriter.NoteEvent(noteEvent));
                 } else {
-                    log.warn('NOTE OUT OF BOUNDS');
+                    log.error('NOTE OUT OF BOUNDS:', JSON.stringify(noteEvent));
                 }
             });
         });

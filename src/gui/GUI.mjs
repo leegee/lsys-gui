@@ -9,12 +9,13 @@ const tonal = require('tonal');
 const LsysParametric = require('../LsysParametric.mjs');
 const LsysRenderer = require('./LsysRenderer.mjs');
 const MIDI = require('../MIDI.mjs');
-const log = require('./Logger.mjs');
+const logger = require('./Logger.mjs');
 const Presets = require('../Presets.mjs');
 const packageJson = require('../../package.json');
 
 module.exports = class GUI {
-    logFilePath = log.findLogPath();
+    logger = null;
+    logFilePath = null;
     midiFilePath = 'output.mid';
     midi = null;
     canvas = null;
@@ -51,7 +52,9 @@ module.exports = class GUI {
     };
 
     constructor(options) {
-        log.verbose('Enter new GUI');
+        this.logger = logger;
+        this.logFilePath = this.logger.findLogPath();
+        this.logger.verbose('Enter new GUI');
         Object.keys(options).forEach(key => {
             this[key] = options[key];
         });
@@ -122,25 +125,25 @@ module.exports = class GUI {
     }
 
     settingsChanged(el) {
-        log.debug('settingChanged', el.nodeName);
+        this.logger.debug('settingChanged', el.nodeName);
         if (el.nodeName === 'INPUT') {
             const matchGroup = el.id.match(/^(\w+)-(\d+)$/);
             if (matchGroup) {
                 this.settings[matchGroup[1]][matchGroup[2]] = el.value.trim();
-                log.debug('INTPUT el %o changed %s[%d] to %s', matchGroup[1], matchGroup[2], this.settings[matchGroup[1]][matchGroup[2]]);
+                this.logger.debug('INTPUT el %o changed %s[%d] to %s', matchGroup[1], matchGroup[2], this.settings[matchGroup[1]][matchGroup[2]]);
             }
             else if (el.type === 'checkbox') {
                 this.settings[el.id] = el.checked;
             }
             else {
                 this.settings[el.id] = el.value.trim();
-                log.silly('INPUT el %o changed to %s: ', el.id, this.settings[el.id], el);
+                this.logger.silly('INPUT el %o changed to %s: ', el.id, this.settings[el.id], el);
             }
         }
 
         else if (el.nodeName === 'SELECT') {
             this.settings[el.id] = el.value.trim();
-            log.silly('Set ', el.id, 'to', el.value);
+            this.logger.silly('Set ', el.id, 'to', el.value);
         }
 
         else {
@@ -155,25 +158,25 @@ module.exports = class GUI {
             }
 
             this.settings[el.id] = text;
-            log.silly('INNER TEXT el %s changed to %s: ', el.id, this.settings[el.id], text, el);
+            this.logger.silly('INNER TEXT el %s changed to %s: ', el.id, this.settings[el.id], text, el);
         }
     }
 
     view(viewName) {
-        log.debug('Switch view %s to %s', this.currentViewName, viewName)
+        this.logger.debug('Switch view %s to %s', this.currentViewName, viewName)
         try {
-            log.silly('Hide:', this.currentViewName);
+            this.logger.silly('Hide:', this.currentViewName);
             if (this.currentViewName) {
                 this.elements[this.currentViewName].style.display = 'none';
             }
             this.currentViewName = viewName;
             this.elements[this.currentViewName].style.display = 'block';
             this.elements[this.currentViewName].scrollTo(0, 0);
-            log.verbose('Set view to:', this.currentViewName);
+            this.logger.verbose('Set view to:', this.currentViewName);
         }
         catch (e) {
-            log.info('Cannot set view to ' + viewName + ' with elements', this.elements);
-            log.error(e);
+            this.logger.info('Cannot set view to ' + viewName + ' with elements', this.elements);
+            this.logger.error(e);
         }
     }
 
@@ -260,31 +263,31 @@ module.exports = class GUI {
             { stdio: ['inherit', 'inherit', 'inherit', 'ipc'] }
         );
 
-        this._service.on('close', () => log.verbose('child close'));
-        this._service.on('exit', () => log.verbose('child exit'));
+        this._service.on('close', () => this.logger.verbose('child close'));
+        this._service.on('exit', () => this.logger.verbose('child exit'));
         this._service.on('error', (err) => {
-            log.verbose('child error', err);
+            this.logger.verbose('child error', err);
             throw err;
         });
 
         this._service.on('message', msg => {
             switch (msg.cmd) {
                 case 'error':
-                    log.error(msg);
+                    this.logger.error(msg);
                     throw new Error((msg.title || 'NO TITLE' + ' ' + msg.name || 'NO_ERROR_NAME') + ' ' + (msg.message || 'NO_ERROR_MESSAGE'));
                 case 'call':
                     try {
-                        log.log('Try to call', msg.methodName);
+                        this.logger.log('Try to call', msg.methodName);
                         this[msg.methodName](msg);
                     } catch (e) {
                         if (e.name === 'TypeError') {
-                            log.error('MethodName: ', msg.methodName);
+                            this.logger.error('MethodName: ', msg.methodName);
                             throw e;
                         }
                     }
                     break;
                 default:
-                    log.error('Unknown command: ', msg);
+                    this.logger.error('Unknown command: ', msg);
             }
         });
 
@@ -294,7 +297,7 @@ module.exports = class GUI {
     updateSettings() {
         Object.keys(this.settings).forEach(id => {
             try {
-                log.verbose('Preset set "%s" to "%s"', id, this.settings[id]);
+                this.logger.verbose('Preset set "%s" to "%s"', id, this.settings[id]);
                 const el = this.window.document.getElementById(id);
                 if (el) {
                     if (el.nodeName) {
@@ -322,20 +325,20 @@ module.exports = class GUI {
                 }
             }
             catch (e) {
-                log.error('Could not set ' + id + '.value: missing GUI element?\n', e);
+                this.logger.error('Could not set ' + id + '.value: missing GUI element?\n', e);
             }
         });
     }
 
     loadPreset(idx = 0, e) {
-        log.info('Load preset ', idx, Presets[idx]);
+        this.logger.info('Load preset ', idx, Presets[idx]);
 
         if (e) {
             e.checked = true;
         }
 
         if (!Presets[idx].totalGenerations) {
-            log.warn('Preset %d had no value for totalGenerations: using 1.', idx);
+            this.logger.warn('Preset %d had no value for totalGenerations: using 1.', idx);
             Presets[idx].totalGenerations = 1;
         }
 
@@ -356,7 +359,7 @@ module.exports = class GUI {
     }
 
     actionGenerate(totalGenerations) {
-        log.verbose('Enter actionGenerate');
+        this.logger.verbose('Enter actionGenerate');
         this._oldActionGenerate = this.elements.actionGenerate.value;
         this.window.document.body.style.cursor = 'progress';
         this.elements.actionGenerate.value = 'Generating...';
@@ -365,7 +368,7 @@ module.exports = class GUI {
         this.canvas = this.window.document.createElement('canvas');
         this.elements.canvases.insertBefore(this.canvas, this.elements.canvases.firstChild);
 
-        this.lsysRenderer = new LsysRenderer(this.settings, this.canvas);
+        this.lsysRenderer = new LsysRenderer(this.settings, this.canvas, this.logger);
 
         this.canvas.scrollIntoView({
             behavior: "smooth",
@@ -378,22 +381,22 @@ module.exports = class GUI {
             rules: this.settings.rules,
             totalGenerations: totalGenerations || this.settings.totalGenerations
         }
-        log.silly('Call service to start Lsys with', settings);
+        this.logger.silly('Call service to start Lsys with', settings);
         this.service('start', settings);
     }
 
     actionCreateMidi() {
-        log.silly('Enter actionCreateMidi');
+        this.logger.silly('Enter actionCreateMidi');
         this.midi.playFile(
             this.lsysRenderer.notesContent,
             this.settings.scale,
             this.settings.duration
         );
-        log.silly('Leave actionCreateMidi');
+        this.logger.silly('Leave actionCreateMidi');
     }
 
     openElementInNewWindow(canvas) {
-        log.silly('Enter openElementInNewWindow');
+        this.logger.silly('Enter openElementInNewWindow');
         const title = this.settings.totalGenerations + ' generations of ' + this.settings.rules;
         let win = new electron.remote.BrowserWindow({
             parent: this.win,
@@ -409,12 +412,12 @@ module.exports = class GUI {
         win.maximize();
         win.once('ready-to-show', () => {
             win.show();
-            log.silly('openElementInNewWindow is done');
+            this.logger.silly('openElementInNewWindow is done');
         });
     }
 
     serviceDoneGeneration(content) {
-        log.info('###########################################\n', content);
+        this.logger.info('###########################################\n', content);
         const currentGeneration = currentGeneration.substring(
             this._lastGenerationContent.length
         );
@@ -423,7 +426,7 @@ module.exports = class GUI {
     }
 
     lsysDone({ content }) {
-        log.silly('Enter lsysDone with %d byes of content', content.length);
+        this.logger.silly('Enter lsysDone with %d byes of content', content.length);
         this.window.document.getElementById('contentDisplay').value = content;
         this.window.document.body.style.cursor = 'default';
         this.elements.actionGenerate.value = this._oldActionGenerate;
@@ -434,7 +437,7 @@ module.exports = class GUI {
         this.lsysRenderer.finalise();
         this.canvas.addEventListener('click', (e) => this.openElementInNewWindow(e.target));
         this.actionCreateMidi();
-        log.silly('FINISHED lsysDone');
+        this.logger.silly('FINISHED lsysDone');
     }
 
 }

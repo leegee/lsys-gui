@@ -1,24 +1,20 @@
-
-module.exports = console;
-
-// console.verbose = console.silly = console.log;
-// console.findLogPath = () => {};
-
 const fs = require('fs');
 const log = require('electron-log');
 
 log.transports.file.level =
     log.transports.console.level = process.env.LOG_LEVEL || 'error';
 
-// log.transports.rendererConsole.level = process.env.LOG_LEVEL || 'warn';
-// log.transports.mainConsole.level = process.env.LOG_LEVEL || 'warn';
+log.transports.console.level = process.env.LOG_LEVEL || false;
+
+log.transports.console.level = false;
 
 log.transports.console.forceStyles = 1;
 
 process.stdout.write(
     '---------------------\n' +
     'env.LOG_LEVEL: ' + (process.env.LOG_LEVEL || '') + '\n' +
-    'Set log level: ' + log.transports.file.level + '\n' +
+    'Set file log level: ' + log.transports.file.level + '\n' +
+    'Set console log level: ' + log.transports.console.level + '\n' +
     '---------------------\n'
 )
 
@@ -41,5 +37,11 @@ log.transports.file.clear = () => {
 
 log.transports.file.clear();
 
-module.exports = log;
+// module.exports = log;
 
+module.exports = {
+    ...log,
+    log: () => {},
+    silly: () => {},
+    debug: () => {},
+};

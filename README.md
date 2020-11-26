@@ -3,15 +3,15 @@
 ## Setup
 
     yarn
-    yarn start 
+    yarn start
     # yarn dev
 
 ![Screenshot](readme.png?raw=true "Screenshot")
 
 ## Sound
 
-This module does not include an interface to 3d visualisation, 
-nor real-time MIDI output, but does include 2d visualisation and MIDI file output.
+This module does not include an interface to 3d visualisation,
+nor real-time MIDI output, but does include 2d visualisation and MIDI file output/playback.
 
 ## Sample Input
 
