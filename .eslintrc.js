@@ -22,9 +22,13 @@ module.exports = {
         "ecmaVersion": 2017
     },
     "rules": {
+        "no-case-declarations": [
+            "ignore"
+        ],
         "indent": [
             "error",
-            4
+            4,
+            { "SwitchCase": 1 }
         ],
         "linebreak-style": [
             "error",
