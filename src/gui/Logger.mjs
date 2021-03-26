@@ -24,7 +24,7 @@ const logPath = log.findLogPath();
 
 process.stdout.write('\nLog file: ' + logPath + '\n');
 
-log.transports.file.clear = () => {
+log.clear = log.transports.file.clear = () => {
     if (fs.existsSync(logPath)) {
         try {
             fs.unlinkSync(logPath);
@@ -35,13 +35,12 @@ log.transports.file.clear = () => {
     }
 };
 
-log.transports.file.clear();
+module.exports = log;
 
-// module.exports = log;
-
-module.exports = {
-    ...log,
-    log: () => {},
-    silly: () => {},
-    debug: () => {},
-};
+// module.exports = {
+//     ...log,
+//     log: () => {},
+//     silly: () => {},
+//     debug: () => {},
+//      clear: log.transports.file.clear
+// };

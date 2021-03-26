@@ -4,8 +4,11 @@ const url = require('url');
 
 const appConfig = require('../../app.config');
 const handleError = require('./Electron-error.mjs');
+const logger = require('./Logger.mjs');
 
 let mainWindow;
+
+logger.clear();
 
 process.on('uncaughtException', error => {
     handleError('Unhandled Error', error);

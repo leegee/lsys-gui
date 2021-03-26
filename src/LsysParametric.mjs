@@ -40,7 +40,7 @@ module.exports = class LsysParametric {
 		start: 'F',
 		variables: '',
 		rules: null,
-		postRenderCallback: () => {}
+		postRenderCallback: () => { }
 	};
 
 	constructor(options) {
@@ -115,7 +115,7 @@ module.exports = class LsysParametric {
 
 	/**
 	 * Creates a strucure as follows:
-	 * 
+	 *
 	 * 	[ [to_match, condition, substitution ], ...]
 	 */
 	_castRules(strRules) {
@@ -181,12 +181,9 @@ module.exports = class LsysParametric {
 	_interploateVars(str) {
 		const rv = str.replace(
 			this.interpolateVarsRe,
-			(match) => {
-				return (typeof this.variables[match] !== 'undefined') ?
-					this.variables[match] : match;
-			}
+			match => (typeof this.variables[match] !== 'undefined') ? this.variables[match] : match
 		);
-		this.options.logger.verbose('Interpolate vars: %s ... %s', str, rv);
+		this.options.logger.verbose('Interpolate vars: %s ... %s', str, rv, this.interpolateVarsRe);
 		return rv;
 	};
 
