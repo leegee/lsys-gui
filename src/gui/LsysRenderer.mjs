@@ -161,15 +161,16 @@ const LsysRenderer = class LsysRenderer {
     }
 
     _turtleGraph(dir) {
-        this.logger.debug('Move dir (%s) from x (%s) y (%s)', dir, this.x, this.y);
-
         this.ctx.beginPath();
+
         // if (this.settings.generationsScaleLines > 0) {
         // this.ctx.lineWidth = this.settings.lineWidth; // * (totalGenerations - currentGenerationNumber);
         // }
         // else if (this.settings.lineWidth) {
         this.ctx.lineWidth = this.settings.lineWidth;
         // }
+
+        this.logger.debug('Move dir (%s) from x (%s) y (%s)', dir, this.x, this.y);
         this.ctx.moveTo(this.x, this.y);
 
         this.x += (LsysRenderer.dcos(dir) * this.settings.turtleStepX);
@@ -179,16 +180,18 @@ const LsysRenderer = class LsysRenderer {
         // this.y += this.settings.yoffset;
 
         if (!this.penUp) {
-            this.logger.debug('DRAW LINE TO ', Math.round(this.x), Math.round(this.y));
-            this.ctx.lineTo(Math.round(this.x), Math.round(this.y));
+            const x = Math.round(this.x);
+            const y = Math.round(this.y);
+            this.logger.debug('Draw line to ', x, y);
+            this.ctx.lineTo(x, y);
             this.ctx.closePath();
             this.ctx.stroke();
         }
 
-        if (this.x < this.minX) this.minX = this.x;
-        if (this.x > this.maxX) this.maxX = this.x;
-        if (this.y < this.minY) this.minY = this.y;
-        if (this.y > this.maxY) this.maxY = this.y;
+        if (this.x < this.minX) { this.minX = this.x; }
+        if (this.x > this.maxX) { this.maxX = this.x; }
+        if (this.y < this.minY) { this.minY = this.y; }
+        if (this.y > this.maxY) { this.maxY = this.y; }
 
         this.logger.silly('Moved to x (%s) y (%s)', this.x, this.y);
     };
@@ -217,12 +220,12 @@ const LsysRenderer = class LsysRenderer {
 
     resizeCanvas() {
         this.logger.debug('Resize Min: %d , %d\nMax: %d , %d', this.minX, this.minY, this.maxX, this.maxY);
-        const wi = (this.minX < 0) ?
-            Math.abs(this.minX) + Math.abs(this.maxX) : this.maxX - this.minX;
-        const hi = (this.minY < 0) ?
-            Math.abs(this.minY) + Math.abs(this.maxY) : this.maxY - this.minY;
+
         if (this.maxY <= 0) throw new RangeError('maxY out of bounds');
         if (this.maxX <= 0) throw new RangeError('maxX out of bounds');
+
+        const wi = (this.minX < 0) ? Math.abs(this.minX) + Math.abs(this.maxX) : this.maxX - this.minX;
+        const hi = (this.minY < 0) ? Math.abs(this.minY) + Math.abs(this.maxY) : this.maxY - this.minY;
 
         this._setUpCanvas();
 
